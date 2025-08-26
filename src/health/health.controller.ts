@@ -17,9 +17,6 @@ export class HealthController {
     private memory: MemoryHealthIndicator,
     private db: TypeOrmHealthIndicator,
   ) {}
-  //ADD you healthChecks Endpoints here
-  //NOTE:this will be configurable later via the module itself to only define name and endpoint
-  // Example: Check if the GitHub service is reachable
   @Get()
   @HealthCheck()
   check() {
@@ -30,10 +27,9 @@ export class HealthController {
           thresholdPercent: 0.75,
           path: '/',
         }),
-      () => this.memory.checkHeap('memory heap', 150 * 1024 * 1024), // 150 MB
-      () => this.memory.checkRSS('memory RSS', 150 * 1024 * 1024), // 150 MB
-      () =>
-        this.db.pingCheck('Database', { timeout: 1500, connection: 'default' }),
+      () => this.memory.checkHeap('memory heap', 256 * 1024 * 1024), // 150 MB
+      () => this.memory.checkRSS('memory RSS', 256 * 1024 * 1024), // 150 MB
+      () => this.db.pingCheck('Database'),
     ]);
   }
 }

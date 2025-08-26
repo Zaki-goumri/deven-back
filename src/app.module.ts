@@ -41,29 +41,6 @@ import databaseConfig from './config/database.config';
       validationSchema: null, // You can define a Joi schema here for validation if needed
       load: [appConfig],
     }),
-    BullModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const redisHost = configService.get<AppConfig['redis']['host']>(
-          'redis.host',
-          'localhost',
-        );
-        const redisPort = configService.get<AppConfig['redis']['port']>(
-          'redis.port',
-          6379,
-        );
-        const redisUrl = `redis://${redisHost}:${redisPort}`;
-        return {
-          connection: {
-            host: redisHost,
-            port: redisPort,
-            url: redisUrl,
-            db: 3, // Default database
-          },
-        };
-      },
-
-      inject: [ConfigService],
-    }),
     AuthenticationModule,
     UserModule,
     HealthModule,

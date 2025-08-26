@@ -12,7 +12,7 @@ ARG PNPM_VERSION=10.10.0
 
 ################################################################################
 # Use node image for base image for all stages.
-FROM node:${NODE_VERSION}-alpine as base
+FROM node:${NODE_VERSION}-alpine AS base
 
 # Set working directory for all build stages.
 WORKDIR /usr/src/app
@@ -24,9 +24,9 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN npm install -g @nestjs/cli 
 ################################################################################
 # Create a stage for installing production dependecies.
-FROM base as deps
+FROM base AS deps
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
+# Download dependencies AS a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.local/share/pnpm/store to speed up subsequent builds.
 # Leverage bind mounts to package.json and pnpm-lock.yaml to avoid having to copy them
 # into this layer.
@@ -37,9 +37,9 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 ################################################################################
 # Create a stage for building the application.
-FROM deps as build
+FROM deps AS build
 
-# Download additional development dependencies before building, as some projects require
+# Download additional development dependencies before building, AS some projects require
 # "devDependencies" to be installed to build. If you don't need this, remove this step.
 RUN --mount=type=bind,source=package.json,target=package.json \
   --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
@@ -49,19 +49,25 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 ################################################################################
 # Create a new stage to run the application with minimal runtime dependencies
 # where the necessary files are copied from the build stage.
-FROM base as final
-
-# Run the application as a non-root user.
-USER node
-
-# Copy package.json so that package manager commands can be used.
-COPY package.json .
+FROM base AS final
+COPY --chown=node:node package.json .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
 
-COPY . . 
+# Copy the application source code with proper ownership
+COPY --chown=node:node . .
+
+# Create the dist directory and set ownership as root, then switch to node user
+RUN mkdir -p /usr/src/app/dist && chown -R node:node /usr/src/app
+
+# Run the application AS a non-root user.
+##TODO : Change back to node user after fixing permission issues
+#USER node
+
+# Copy package.json so that package manager commands can be used.
+
 
 # Expose the port that the application listens on.
 EXPOSE 3000
