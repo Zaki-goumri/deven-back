@@ -8,6 +8,5 @@ export interface AppConfig {
     persistentDb: number;
     cachedDb: number;
   };
-  mail: MailConfig;
   auth: AuthConfig;
 }
