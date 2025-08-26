@@ -17,7 +17,7 @@ import { UserInfo } from './userInfo.entity';
 @Index(['userName'], { unique: true })
 @Index(['email'], { unique: true })
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
   @Column({ type: 'varchar' })

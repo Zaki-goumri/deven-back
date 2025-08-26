@@ -21,6 +21,7 @@ import { OrganizationModule } from './organization/organization.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { TeamModule } from './team/team.module';
 import { AdminModule } from './admin/admin.module';
+import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import databaseConfig from './config/database.config';
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import databaseConfig from './config/database.config';
     WhatsappModule,
     TeamModule,
     AdminModule,
+    AchivenemntsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

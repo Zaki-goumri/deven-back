@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 Entity();
-export class Hackathon {
+export class Icon {
   @PrimaryGeneratedColumn('increment')
-  id: number;
+  id: number; //add only id for now
 }
