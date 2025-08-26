@@ -12,5 +12,6 @@ export default registerAs(
     database: process.env.DB_NAME || 'deven',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     synchronize: process.env.NODE_ENV !== 'production',
+    autoLoadEntities: true,
   }),
 );

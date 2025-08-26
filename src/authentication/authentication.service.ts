@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { result } from 'src/common/utils/result.util';
 import { compareHash } from 'src/common/utils/authentication/bcrypt.utils';
 import { err } from 'src/common/utils/result.util';
@@ -23,9 +23,19 @@ export class AuthenticationService {
     email: string,
     password: string,
   ): Promise<result<User, string>> {
-    const user = await this.userService.findByEmail(email);
-    if (!user) {
+    const res = await this.userService.findByEmail(email);
+    if (!res) {
       return err('User not found');
+    }
+    if (!res.ok) {
+      return err(res.error);
+    }
+    const user = res.value;
+
+    if (!user?.password) {
+      throw new BadRequestException(
+        'Oauth User cannot login using mail password',
+      );
     }
     const isPasswordValid = await compareHash(password, user.password);
     if (!isPasswordValid) {

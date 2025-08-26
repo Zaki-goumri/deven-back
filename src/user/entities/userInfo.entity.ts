@@ -31,7 +31,7 @@ export class UserInfo {
   @Column({ type: 'simple-array', nullable: true })
   skills: string[];
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar'})
   locationId: string;
 
   @CreateDateColumn({ type: 'timestamp' })
@@ -39,10 +39,6 @@ export class UserInfo {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
-
-  // One-to-one relationship with User entity
-  @OneToOne(() => User, (user) => user.info)
-  user: User;
 
   @ManyToOne(() => Location, (location) => location.usersInfo)
   @JoinColumn({ name: 'locationId' })

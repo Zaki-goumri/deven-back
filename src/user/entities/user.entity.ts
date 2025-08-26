@@ -4,15 +4,14 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   JoinColumn,
   Index,
+  OneToOne,
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
 
 // Enum for provider types
-
 
 @Entity('users')
 @Index(['userName'], { unique: true })
@@ -21,7 +20,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar' })
   infoId: string;
 
   @Column({ type: 'varchar', length: 100, unique: true })
@@ -52,7 +51,7 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @ManyToOne(() => UserInfo, (info) => info.user)
-  @JoinColumn({ name: 'infoId' })
+  @OneToOne(() => UserInfo)
+  @JoinColumn({ name: 'infoId' }) // Specify the column name
   info: UserInfo;
 }
