@@ -6,7 +6,6 @@ import { UserService } from 'src/user/user.service';
 import { RefreshTokenPayload } from '../interfaces/refresh-token.dto';
 import { User } from 'src/user/entities/user.entity';
 
-
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
@@ -24,6 +23,8 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: RefreshTokenPayload): Promise<User | null> {
-    return this.userService.findById(payload.id);
+    const res = await this.userService.findById(payload.id);
+    if (!res.ok) return null;
+    return res.value;
   }
 }

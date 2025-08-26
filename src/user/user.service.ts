@@ -8,10 +8,10 @@ export class UserService {
   createUser(data: registerDto): Promise<result<User, string>> {
       throw new Error('Method not implemented.');
   }
-  findByEmail(email: string): Promise<User | null> {
+  findByEmail(email: string): Promise<result<User | null,string>> {
     throw new Error('Method not implemented.');
   }
-  findById(id: string): Promise<User | null> {
+  findById(id: string): Promise<result<User | null,string>> {
     throw new Error('Method not implemented.');
   }
 }

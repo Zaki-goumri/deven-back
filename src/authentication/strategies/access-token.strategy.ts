@@ -23,6 +23,9 @@ export class AccessTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: AccessTokenPayload): Promise<User | null> {
-    return this.userService.findById(payload.sub);
+    const res = await this.userService.findById(payload.sub);
+    //Note to me : why did I turn this into golang lol
+    if (!res.ok) return null;
+    return res.value;
   }
 }
