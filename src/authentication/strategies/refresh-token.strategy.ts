@@ -23,8 +23,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: RefreshTokenPayload): Promise<User | null> {
-    const res = await this.userService.findById(payload.id);
-    if (!res.ok) return null;
-    return res.value;
+    const user = await this.userService.findById(payload.id);
+    return user;
   }
 }
