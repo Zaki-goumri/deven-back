@@ -1,0 +1,3 @@
+### 2. Inconsistent `MAIL_JOBS` constants
+
+There seem to be two different definitions for `MAIL_JOBS` in `src/common/constants/jobs.ts` and `src/common/constants/queues.ts`. This is likely a copy-paste error and will lead to issues. The `MAIL_JOBS` constant should be defined in one place and the values should be standardized.

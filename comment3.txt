@@ -1,0 +1,3 @@
+### 3. Error Handling in `authentication.service.ts`
+
+The error handling has been changed from a custom `result` utility to throwing NestJS exceptions. This is a good change for consistency with the framework, but it's a significant one and should be applied consistently across the service.
