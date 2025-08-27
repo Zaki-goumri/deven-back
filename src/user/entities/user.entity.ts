@@ -5,17 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  Index,
   OneToOne,
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
 
-// Enum for provider types
-
 @Entity('users')
-@Index(['userName'], { unique: true })
-@Index(['email'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('increment')
   id: string;

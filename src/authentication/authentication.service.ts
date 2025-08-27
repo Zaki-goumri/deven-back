@@ -26,7 +26,6 @@ export class AuthenticationService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-
     if (!user?.password) {
       throw new BadRequestException(
         'Oauth User cannot login using mail password',
@@ -38,6 +37,7 @@ export class AuthenticationService {
     }
     return user;
   }
+
   async issueTokens(user: User): Promise<AuthResponseDto> {
     try {
       const { id, email } = user;
@@ -57,11 +57,9 @@ export class AuthenticationService {
           secret: jwtConfig.refreshTokenSecret,
         }),
       ]);
-
       return {
-        //TODO : add jwt token generation logic here
-        accessToken, // Replace with actual token generation logic
-        refreshToken, // Replace with actual token generation logic
+        accessToken,
+        refreshToken,
         user: user,
       };
     } catch (error) {
@@ -69,6 +67,7 @@ export class AuthenticationService {
       throw new BadRequestException('Failed to issue tokens');
     }
   }
+
   async registerUser(data: registerDto) {
     const user = await this.userService.createUser(data);
     const tokens = await this.issueTokens(user);

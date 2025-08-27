@@ -4,11 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Location } from 'src/common/entitiies/location.entity';
 
 @Entity('user_infos')
@@ -31,7 +29,7 @@ export class UserInfo {
   @Column({ type: 'simple-array', nullable: true })
   skills: string[];
 
-  @Column({ type: 'varchar'})
+  @Column({ type: 'varchar' })
   locationId: string;
 
   @CreateDateColumn({ type: 'timestamp' })
