@@ -9,6 +9,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
+import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from 'src/user/user.module';
   providers: [
     AuthenticationService,
     LocalStrategy,
+    QueueModule,
     LocalGuard,
     AccessTokenStrategy,
     AcessTokenGuard,

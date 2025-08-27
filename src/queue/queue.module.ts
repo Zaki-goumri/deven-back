@@ -1,12 +1,15 @@
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QUEUE_NAME } from 'src/common/constants/queues';
 import { AppConfig } from 'src/config/interfaces/app-config.interface';
-import { SearchModule } from 'src/search/search.module';
+import { MailProcessor } from './mail/mail.processor';
+import { EmailModule } from 'src/email/email.module';
 
+@Global()
 @Module({
   imports: [
+    EmailModule,
     BullModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const redisHost = configService.get<AppConfig['redis']['host']>(
@@ -36,5 +39,8 @@ import { SearchModule } from 'src/search/search.module';
       })),
     ),
   ],
+
+  exports: [BullModule],
+  providers: [MailProcessor],
 })
 export class QueueModule {}

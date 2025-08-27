@@ -26,7 +26,7 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
   //TODO type this later
-  updateUser(id: number, updateData: Partial<User>){
+  updateUser(id: number, updateData: Partial<User>) {
     return this.userRepository.update({ id }, updateData);
   }
   updateUserByEmail(email: string, updateData: Partial<User>) {

@@ -5,5 +5,11 @@
   "compilerOptions": {
     "builder": "swc",
     "typeCheck": true
-  }
+  },
+  "assets": [
+    {
+      "include": "**/*.hbs",
+      "outDir": "dist/src"
+    }
+  ]
 }
