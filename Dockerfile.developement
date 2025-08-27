@@ -60,8 +60,7 @@ COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node . .
 
 # Create the dist directory and set ownership as root, then switch to node user
-RUN mkdir -p /usr/src/app/dist && chown -R node:node /usr/src/app
-
+RUN mkdir -p /usr/src/app/dist 
 # Run the application AS a non-root user.
 ##TODO : Change back to node user after fixing permission issues
 #USER node

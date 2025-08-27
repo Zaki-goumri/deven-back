@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-Entity();
+@Entity()
 export class VerficationDemand {
   @PrimaryGeneratedColumn('increment')
   id: number;

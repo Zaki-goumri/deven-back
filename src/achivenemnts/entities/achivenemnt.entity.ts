@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Icon } from './icon.entity';
 
-Entity();
+@Entity()
 export class Achivenemnt {
   @PrimaryGeneratedColumn('increment')
   id: number;

@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-Entity('teams');
+@Entity('teams')
 export class Team {
   @PrimaryGeneratedColumn('increment')
   id: number;
