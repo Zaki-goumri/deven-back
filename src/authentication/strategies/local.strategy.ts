@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { AuthenticationService } from '../authentication.service';
@@ -9,9 +9,9 @@ import { Request } from 'express';
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private readonly authenticationService: AuthenticationService) {
     super({
-      usernameField: 'email', //change this to 'username' if you want to use username instead of email
+      usernameField: 'email',
       passwordField: 'password',
-      passReqToCallback: true, // Allows us to access the request object
+      passReqToCallback: true,
     });
   }
 

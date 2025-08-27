@@ -14,6 +14,7 @@ import {
 export class VerficationDemand {
   @PrimaryGeneratedColumn('increment')
   id: number;
+
   @OneToOne(() => Organization)
   @JoinColumn({ name: 'organizationId' })
   organization: Organization;
@@ -24,10 +25,13 @@ export class VerficationDemand {
 
   @Column({ type: 'text' })
   content: string;
+
   @Column({ type: 'boolean', nullable: true })
   isApproved: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
+
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
   //attchement

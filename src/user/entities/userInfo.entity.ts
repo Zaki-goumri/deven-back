@@ -5,11 +5,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Location } from 'src/common/entitiies/location.entity';
 
 @Entity('user_infos')
@@ -65,6 +63,7 @@ export class UserInfo {
   })
   @Column({ type: 'number', nullable: true })
   locationId: number | null;
+
 
   @ApiProperty({
     description: 'The date and time the user info was created',

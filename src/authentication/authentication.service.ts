@@ -75,24 +75,6 @@ export class AuthenticationService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-
-
-    if (!user?.password) {
-      throw new BadRequestException(
-        'Oauth User cannot login using mail password',
-      );
-    }
-    // this may look useless since we can verifiy on issueTokens methods but to avoid unessariy cpu work with bcrypt we recheck here as well
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedException('Email not verified');
-    }
-
-    const isPasswordValid = await compareHash(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
-    }
-    return user;
-  }
   //Private method that is the only place to create verification codes for users
 
   private async generateVerificationCode(email: string): Promise<string> {
@@ -103,6 +85,7 @@ export class AuthenticationService {
     return code;
 
   }
+
   async issueTokens(user: User): Promise<AuthResponseDto> {
     try {
       const { id, email } = user;
@@ -122,11 +105,10 @@ export class AuthenticationService {
           secret: jwtConfig.refreshTokenSecret,
         }),
       ]);
-
       return {
 
-        accessToken, // Replace with actual token generation logic
-        refreshToken, // Replace with actual token generation logic
+        accessToken,
+        refreshToken,
         user: user,
       };
     } catch (error) {

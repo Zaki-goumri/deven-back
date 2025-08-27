@@ -1,7 +1,5 @@
-import { Hackathon } from 'src/hackathon/entities/hackathon.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
-  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -9,28 +7,24 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Hackathon } from './hackathon.entity';
 
-@Entity('teams')
-export class Team {
+@Entity()
+export class HackthonOrganizer {
   @PrimaryGeneratedColumn('increment')
   id: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @ManyToOne(() => Hackathon)
   @JoinColumn({ name: 'hackathonId' })
   hackathon: Hackathon;
 
-  @Column({ type: 'varchar', length: 10 })
-  name: string;
-
-  @Column({ type: 'char', length: 8, unique: true })
-  code: string;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  description: string | null;
-
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'createdBy' })
-  creator: User;
+  @JoinColumn({ name: 'assignedBy' })
+  assigner: User;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
