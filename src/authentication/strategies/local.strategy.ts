@@ -14,7 +14,9 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
       passReqToCallback: true, // Allows us to access the request object
     });
   }
+
   async validate(req:Request,email: string, password: string): Promise<User> {
+
     const user = await this.authenticationService.validateUser(email, password);
     return user;
   }

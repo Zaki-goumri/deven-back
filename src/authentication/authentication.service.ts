@@ -1,9 +1,11 @@
 import {
   BadRequestException,
+
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
+
   UnauthorizedException,
 } from '@nestjs/common';
 import { compareHash } from 'src/common/utils/authentication/bcrypt.utils';
@@ -32,6 +34,7 @@ export class AuthenticationService {
     private readonly redisService: RedisService,
     @InjectQueue(QUEUE_NAME.MAIL) private readonly mailQueue: Queue,
   ) {}
+
 
   async sendVerificationEmail(email: string) {
     const user = await this.userService.findByEmail(email);
@@ -73,6 +76,7 @@ export class AuthenticationService {
       throw new UnauthorizedException('User not found');
     }
 
+
     if (!user?.password) {
       throw new BadRequestException(
         'Oauth User cannot login using mail password',
@@ -97,6 +101,7 @@ export class AuthenticationService {
     // Store the code in Redis with a TTL of 10 minutes (600 seconds)
     await this.redisService.set(key, code, 600, 'persistent');
     return code;
+
   }
   async issueTokens(user: User): Promise<AuthResponseDto> {
     try {
@@ -119,6 +124,7 @@ export class AuthenticationService {
       ]);
 
       return {
+
         accessToken, // Replace with actual token generation logic
         refreshToken, // Replace with actual token generation logic
         user: user,
@@ -130,6 +136,7 @@ export class AuthenticationService {
   }
   async registerUser(data: registerDto): Promise<RegisterResponseDto> {
     const user = await this.userService.createUser(data);
+
 
     if (!user.isEmailVerified) {
       if (user.provider == null) {
@@ -154,5 +161,6 @@ export class AuthenticationService {
   }
   static getVerificationKey(email: string) {
     return `verify-auth:${email}`;
+
   }
 }
