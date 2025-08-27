@@ -21,13 +21,13 @@ export class Hackathon {
   @Column({ type: 'varchar', length: 30 })
   title: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'date' })
   startDate: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'date' })
   endDate: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'date' })
   registrationDate: Date;
 
   @ManyToOne(() => Organization)
@@ -44,13 +44,13 @@ export class Hackathon {
   @Column({ type: 'varchar', length: 50 })
   overview: string;
 
-  @Column({ type: 'tinyint', unsigned: true })
+  @Column({ type: 'int', unsigned: true })
   minInTeam: number;
 
-  @Column({ type: 'tinyint', unsigned: true })
+  @Column({ type: 'int', unsigned: true })
   maxInTeam: number;
 
-  @Column({ type: 'tinyint', unsigned: true, nullable: true })
+  @Column({ type: 'int', unsigned: true, nullable: true })
   maxOfTeams: number;
 
   @Column({ default: false })

@@ -1,11 +1,9 @@
 import {
   BadRequestException,
-
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
-
   UnauthorizedException,
 } from '@nestjs/common';
 import { compareHash } from 'src/common/utils/authentication/bcrypt.utils';
@@ -34,7 +32,6 @@ export class AuthenticationService {
     private readonly redisService: RedisService,
     @InjectQueue(QUEUE_NAME.MAIL) private readonly mailQueue: Queue,
   ) {}
-
 
   async sendVerificationEmail(email: string) {
     const user = await this.userService.findByEmail(email);
@@ -75,6 +72,18 @@ export class AuthenticationService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Email not verified');
+    }
+    if (!user.password) {
+      throw new UnauthorizedException('Oauth User cannot login with password');
+    }
+    const isPasswordValid = await compareHash(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
+  }
   //Private method that is the only place to create verification codes for users
 
   private async generateVerificationCode(email: string): Promise<string> {
@@ -83,7 +92,6 @@ export class AuthenticationService {
     // Store the code in Redis with a TTL of 10 minutes (600 seconds)
     await this.redisService.set(key, code, 600, 'persistent');
     return code;
-
   }
 
   async issueTokens(user: User): Promise<AuthResponseDto> {
@@ -106,7 +114,6 @@ export class AuthenticationService {
         }),
       ]);
       return {
-
         accessToken,
         refreshToken,
         user: user,
@@ -118,7 +125,6 @@ export class AuthenticationService {
   }
   async registerUser(data: registerDto): Promise<RegisterResponseDto> {
     const user = await this.userService.createUser(data);
-
 
     if (!user.isEmailVerified) {
       if (user.provider == null) {
@@ -143,6 +149,5 @@ export class AuthenticationService {
   }
   static getVerificationKey(email: string) {
     return `verify-auth:${email}`;
-
   }
 }
