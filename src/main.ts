@@ -1,5 +1,9 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import helmet from 'helmet';
@@ -58,6 +62,11 @@ async function bootstrap() {
   //  app.use(doubleCsrfProtection);
   //
   app.useGlobalInterceptors(new LoggerInterceptor());
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      strategy: 'exposeAll',
+    }),
+  );
   // //PIPES
   app.useGlobalPipes(
     new ValidationPipe({
@@ -104,7 +113,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
   app.setGlobalPrefix('api', {
-    exclude: ['/api-docs', '/api-docs-json','/health', '/admin'],
+    exclude: ['/api-docs', '/api-docs-json', '/health', '/admin'],
   });
 
   //SWAGGER DOCS BUILDER
@@ -123,7 +132,6 @@ async function bootstrap() {
       content: document,
     }),
   );
-
 
   //RUNNING THE APPLICATION
   const port = process.env.PORT || 3000;

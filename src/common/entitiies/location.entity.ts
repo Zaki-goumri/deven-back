@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { UserInfo } from 'src/user/entities/userInfo.entity';
 import {
   Entity,
@@ -10,21 +11,47 @@ import {
 
 @Entity('locations')
 export class Location {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ApiProperty({
+    description: 'The unique identifier of the location',
+    example: '1',
+  })
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+  @ApiProperty({
+    description: 'The name of the location',
+    example: 'Epitech',
+    required: false,
+  })
   @Column({ type: 'varchar', length: 255, nullable: true })
   name?: string;
 
+  @ApiProperty({
+    description: 'The city of the location',
+    example: 'Paris',
+    required: false,
+  })
   @Column({ type: 'varchar', length: 100, nullable: true })
   city?: string;
 
   //Unique so we can upsert later
+  @ApiProperty({
+    description: 'The Google Maps link of the location',
+    example: 'https://maps.app.goo.gl/xxxxxxxxxxxx',
+  })
   @Column({ type: 'text', unique: true })
   mapsLink: string;
 
+  @ApiProperty({
+    description: 'The date and time the location was created',
+    example: '2021-01-01T00:00:00.000Z',
+  })
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
+  @ApiProperty({
+    description: 'The date and time the location was last updated',
+    example: '2021-01-01T00:00:00.000Z',
+  })
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
