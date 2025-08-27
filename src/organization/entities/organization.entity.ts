@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Location } from 'src/common/entitiies/location.entity';
+import { Location } from 'src/common/entities/location.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -83,11 +83,9 @@ export class Organization {
     name: 'organization_followers',
     joinColumn: {
       name: 'organizationId',
-      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
       name: 'followerId',
-      referencedColumnName: 'id',
     },
   })
   followers: User[];
