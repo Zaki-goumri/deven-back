@@ -7,8 +7,11 @@ import {
   UpdateDateColumn,
   JoinColumn,
   ManyToOne,
+  OneToOne,
+  Relation,
 } from 'typeorm';
-import { Location } from 'src/common/entitiies/location.entity';
+import { Location } from 'src/common/entities/location.entity';
+import { User } from './user.entity';
 
 @Entity('user_infos')
 export class UserInfo {
@@ -64,7 +67,6 @@ export class UserInfo {
   @Column({ type: 'number', nullable: true })
   locationId: number | null;
 
-
   @ApiProperty({
     description: 'The date and time the user info was created',
     example: '2021-01-01T00:00:00.000Z',
@@ -86,4 +88,6 @@ export class UserInfo {
   @ManyToOne(() => Location, (location) => location.usersInfo)
   @JoinColumn({ name: 'locationId' })
   location: Location | null;
+  @OneToOne(() => User, (user) => user.info)
+  user: Relation<User>;
 }

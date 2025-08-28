@@ -8,6 +8,7 @@ import {
   JoinColumn,
   OneToOne,
   Index,
+  Relation,
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
@@ -103,5 +104,5 @@ export class User {
   })
   @OneToOne(() => UserInfo)
   @JoinColumn({ name: 'infoId' }) // Specify the column name
-  info: UserInfo;
+  info:Relation< UserInfo>;
 }
