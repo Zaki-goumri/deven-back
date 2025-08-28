@@ -4,13 +4,37 @@ import { registerDto } from 'src/authentication/dtos/requests/register.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { generateHash } from 'src/common/utils/authentication/bcrypt.utils';
+import { Profile as GoogleProfile } from 'passport-google-oauth20';
+import { Profile as GithubProfile } from 'passport-github2';
+import { UserInfo } from './entities/userInfo.entity';
+import { getProviderEnumfromString } from 'src/common/utils/authentication/provider.utils';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(UserInfo)
+    private userInfoRepository: Repository<UserInfo>,
   ) {}
 
+  async createOauthUser(profile: GoogleProfile | GithubProfile): Promise<User> {
+    const provider = getProviderEnumfromString(profile.provider);
+    const newUser = this.userRepository.create({
+      email: profile.emails?.[0]?.value,
+      username: profile.displayName || profile.username,
+      isEmailVerified: true,
+      provider,
+    });
+
+    const userInfo = this.userInfoRepository.create({
+      firstName: profile.name?.givenName,
+      lastName: profile.name?.familyName,
+      //TODO we need to define this later and uncommnet this
+      //profilePicture: profile.photos?.[0]?.value,
+    });
+    newUser.info = userInfo;
+    return this.userRepository.save(newUser);
+  }
   async createUser(data: registerDto, isSocialLogin = false): Promise<User> {
     const hashedPassword = await generateHash(data.password);
     const newUser = this.userRepository.create({
@@ -19,7 +43,6 @@ export class UserService {
       isEmailVerified: isSocialLogin,
     });
     return this.userRepository.save(newUser);
-
   }
   findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
@@ -34,6 +57,5 @@ export class UserService {
   }
   updateUserByEmail(email: string, updateData: Partial<User>) {
     return this.userRepository.update({ email }, updateData);
-
   }
 }

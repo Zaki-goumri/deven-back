@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { LocalGuard } from './guards/local.guard';
 import { USER } from './decorators/user.decorartor';
@@ -15,6 +15,8 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { LoginDto } from './dtos/requests/login.dto';
 import { RegisterResponseDto } from './dtos/responses/register-response.dto';
 import { VerifyMailReqDto } from './dtos/requests/verifiy-mail-req.dto';
+import { GoogleGuard } from './guards/oauth/google.guard';
+import { GithubGuard } from './guards/oauth/github.guard';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -124,5 +126,28 @@ export class AuthenticationController {
   })
   async sendVerificationCode(@Body('email') email: string) {
     return this.authenticationService.sendVerificationEmail(email);
+  }
+  //the docuemntion below shall reflect that this get will redirect the user to complete the oauth flow
+  @ApiOperation({
+    summary: 'Google OAuth2 login',
+    description: 'Initiates the Google OAuth2 login flow.',
+  })
+  @UseGuards(GoogleGuard)
+  @Get('oauth/google')
+  googleAuth() {
+    return;
+  }
+
+  @UseGuards(GoogleGuard)
+  @Post('oauth/google/callback')
+  googleAuthRedirect() {
+    return;
+  }
+
+  @UseGuards(GithubGuard)
+  @Get('oauth/github')
+  githubAuth() {}
+  githubAuthRedirect() {
+    return;
   }
 }
