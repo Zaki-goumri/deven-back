@@ -23,6 +23,7 @@ export class UserService {
       email: profile.emails?.[0]?.value,
       username: profile.displayName || profile.username,
       isEmailVerified: true,
+      isFirstLogin: true,
       provider,
     });
 

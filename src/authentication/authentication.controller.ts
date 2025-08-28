@@ -134,23 +134,20 @@ export class AuthenticationController {
   })
   @UseGuards(GoogleGuard)
   @Get('oauth/google')
-  googleAuth(@Res() res: Response) {
-    res.redirect('/authentication/oauth/github/callback');
+  googleAuth() {
     return;
   }
 
   @UseGuards(GoogleGuard)
-  @Post('oauth/google/callback')
+  @Get('oauth/google/callback')
   googleAuthRedirect(@USER() user: User) {
     return this.authenticationService.issueTokens(user);
   }
 
   @UseGuards(GithubGuard)
   @Get('oauth/github')
-  githubAuth(@Res() res: Response) {
-    res.redirect('/authentication/oauth/github/callback');
-  }
-  @Post('oauth/github/callback')
+  githubAuth() {}
+  @Get('oauth/github/callback')
   @UseGuards(GithubGuard)
   githubAuthCallback(@USER() user: User) {
     return this.authenticationService.issueTokens(user);
