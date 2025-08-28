@@ -13,7 +13,6 @@ import { AuthResponseDto } from './dtos/responses/auth-response.dto';
 import { registerDto } from './dtos/requests/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AppConfig } from 'src/config/interfaces/app-config.interface';
 import { RedisService } from 'src/redis/redis.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { QUEUE_NAME } from 'src/common/constants/queues';
@@ -22,6 +21,9 @@ import { MAIL_JOBS } from 'src/common/constants/jobs';
 import { RegisterResponseDto } from './dtos/responses/register-response.dto';
 import { VerifyMailReqDto } from './dtos/requests/verifiy-mail-req.dto';
 import { AuthConfig } from 'src/config/interfaces/auth-config.interface';
+import { Profile as GoogleProfile } from 'passport-google-oauth20';
+import { Profile as GithubProfile } from 'passport-github2';
+import { AccessTokenPayload } from './interfaces/access-token-payload.interface';
 
 @Injectable()
 export class AuthenticationService {
@@ -68,6 +70,23 @@ export class AuthenticationService {
     };
   }
 
+  async logOauthUser(user: GoogleProfile | GithubProfile) {
+    const existingUser = await this.userService.findByEmail(
+      user.emails![0].value,
+    );
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const newUser = await this.userService.createOauthUser(user);
+    //send welcome email
+    await this.mailQueue.add(MAIL_JOBS.SEND_WELCOME_MAIL, {
+      to: newUser.email,
+    });
+    return newUser;
+  }
+
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.userService.findByEmail(email);
     if (!user) {
@@ -98,7 +117,7 @@ export class AuthenticationService {
   async issueTokens(user: User): Promise<AuthResponseDto> {
     try {
       const { id, email } = user;
-      const accessTokenPayload = { sub: id, email };
+      const accessTokenPayload: AccessTokenPayload = { sub: id, user: user };
       const refreshTokenPayload = { sub: id, email, type: 'refresh' };
 
       const jwtConfig = this.configService.get<AuthConfig['jwt']>('auth.jwt')!;

@@ -30,8 +30,8 @@ import redisConfig from './config/redis.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true,
-      load: [appConfig, databaseConfig, mailConfig, authConfig,redisConfig],
+      isGlobal: true,
+      load: [appConfig, databaseConfig, mailConfig, authConfig, redisConfig],
       envFilePath: `.env`,
     }),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
@@ -55,3 +55,4 @@ import redisConfig from './config/redis.config';
   providers: [AppService],
 })
 export class AppModule {}
+
