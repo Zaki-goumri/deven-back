@@ -33,6 +33,7 @@ import redisConfig from './config/redis.config';
       isGlobal: true,
       load: [appConfig, databaseConfig, mailConfig, authConfig, redisConfig],
       envFilePath: `.env`,
+      expandVariables: true,
     }),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
