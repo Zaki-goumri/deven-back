@@ -1,4 +1,5 @@
-import { Location } from 'src/common/entitiies/location.entity';
+import { Tag } from 'src/common/entities/tag.entity';
+import { Location } from 'src/common/entities/location.entity';
 import { Organization } from 'src/organization/entities/organization.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -6,11 +7,12 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  UpdateResult,
 } from 'typeorm';
 
 @Entity()
@@ -68,4 +70,16 @@ export class Hackathon {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  @ManyToMany(() => Tag)
+  @JoinTable({
+    name: 'hackathonTag',
+    joinColumn: {
+      name: 'hackathonId',
+    },
+    inverseJoinColumn: {
+      name: 'tagId',
+    },
+  })
+  tags: Tag[];
 }

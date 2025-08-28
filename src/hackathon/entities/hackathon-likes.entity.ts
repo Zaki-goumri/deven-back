@@ -1,35 +1,26 @@
 import { User } from 'src/user/entities/user.entity';
 import {
-  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { Hackathon } from './hackathon.entity';
 
 @Entity()
-export class Setting {
+export class HackthonLikes {
   @PrimaryGeneratedColumn('increment')
-  id: number;
+  id: string;
 
   @OneToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ default: true })
-  pushNotification: boolean;
-
-  @Column({ default: true })
-  pushEmail: boolean;
-
-  @Column({ default: true })
-  publicProfile: boolean;
+  @OneToOne(() => Hackathon)
+  @JoinColumn({ name: 'hackathonId' })
+  hackathon: Hackathon;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  likedAt: Date;
 }
