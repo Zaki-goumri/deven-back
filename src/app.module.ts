@@ -1,57 +1,55 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import appConfig from './config/app.config';
-import { AuthenticationModule } from './authentication/authentication.module';
 import { UserModule } from './user/user.module';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { HealthModule } from './health/health.module';
-import { QueueModule } from './queue/queue.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SettingsModule } from './settings/settings.module';
-import { HackathonModule } from './hackathon/hackathon.module';
-import { VerificationModule } from './verification/verification.module';
-import { OrganizationModule } from './organization/organization.module';
-import { WhatsappModule } from './whatsapp/whatsapp.module';
-import { TeamModule } from './team/team.module';
-import { AdminModule } from './admin/admin.module';
-import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from './config/app.config';
+import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
+import { DatabaseConfig } from './config/interfaces/database-config.interface';
+import { AuthenticationModule } from './authentication/authentication.module';
+import { TeamModule } from './team/team.module';
+import { HackathonModule } from './hackathon/hackathon.module';
+import { OrganizationModule } from './organization/organization.module';
+import { SettingsModule } from './settings/settings.module';
+import { AdminModule } from './admin/admin.module';
+import { VerificationModule } from './verification/verification.module';
+import { EmailModule } from './email/email.module';
+import mailConfig from './config/mail.config';
+import { QueueModule } from './queue/queue.module';
 import { RedisModule } from './redis/redis.module';
+import { SearchModule } from './search/search.module';
+import { HealthModule } from './health/health.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import redisConfig from './config/redis.config';
+
 @Module({
   imports: [
-    RedisModule,
-    TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          name: 'global',
-          limit: 100, // Maximum number of requests
-          ttl: 60, // Time to live in seconds
-          blockDuration: 10, // Block duration in seconds
-          ignoreUserAgents: [/^curl\//i], // Ignore requests from curl user agent
-        },
-      ],
-    }),
     ConfigModule.forRoot({
-      isGlobal: true, // Makes the configuration available globally
-      validationSchema: null, // You can define a Joi schema here for validation if needed
-      load: [appConfig],
+      isGlobal:true,
+      load: [appConfig, databaseConfig, mailConfig, authConfig,redisConfig],
+      envFilePath: `.env`,
     }),
-    AuthenticationModule,
+    TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
-    HealthModule,
-    QueueModule,
-    SettingsModule,
-    HackathonModule,
-    VerificationModule,
-    OrganizationModule,
-    WhatsappModule,
+    AuthenticationModule,
     TeamModule,
+    HackathonModule,
+    OrganizationModule,
+    SettingsModule,
     AdminModule,
+    VerificationModule,
+    EmailModule,
+    QueueModule,
+    RedisModule,
+    HealthModule,
+    WhatsappModule,
     AchivenemntsModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,12 +1,4 @@
-import { AuthConfig } from './auth-config.interface';
-import { MailConfig } from './mail-config.inteface';
 
+//This will be only used for common configs but mostly avoided
 export interface AppConfig {
-  redis: {
-    host: string;
-    port: number;
-    persistentDb: number;
-    cachedDb: number;
-  };
-  auth: AuthConfig;
 }
