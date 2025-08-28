@@ -10,9 +10,12 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
 import { QueueModule } from 'src/queue/queue.module';
+import { ConfigModule } from '@nestjs/config';
+import authConfig from 'src/config/auth.config';
 
 @Module({
   imports: [
+    ConfigModule.forFeature(authConfig),
     JwtModule.register({
       global: true,
     }),

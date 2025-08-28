@@ -1,29 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from 'src/user/user.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { AccessTokenPayload } from '../interfaces/access-token-payload.interface';
-import { User } from 'src/user/entities/user.entity';
+import authConfig from 'src/config/auth.config';
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(
-  Strategy,
-  'access-token',
-) {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    configService: ConfigService,
-    private readonly userService: UserService,
+    @Inject(authConfig.KEY)
+    private readonly authConfiguration: ConfigType<typeof authConfig>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get<string>('auth.jwt.accessTokenSecret')!,
+      secretOrKey: authConfiguration.jwt.accessTokenSecret,
     });
   }
 
-  async validate(payload: AccessTokenPayload): Promise<User | null> {
-    const user = await this.userService.findById(payload.sub);
-    return user;
+  validate(payload: AccessTokenPayload) {
+    return payload.user;
   }
 }
+

@@ -1,25 +1,21 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { QUEUE_NAME } from 'src/common/constants/queues';
-import { AppConfig } from 'src/config/interfaces/app-config.interface';
 import { MailProcessor } from './mail/mail.processor';
 import { EmailModule } from 'src/email/email.module';
+import { AppConfig } from 'src/config/interfaces/app-config.interface';
+import redisConfig from 'src/config/redis.config';
 
 @Global()
 @Module({
   imports: [
+    ConfigModule.forFeature(redisConfig),
     EmailModule,
     BullModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const redisHost = configService.get<AppConfig['redis']['host']>(
-          'redis.host',
-          'localhost',
-        );
-        const redisPort = configService.get<AppConfig['redis']['port']>(
-          'redis.port',
-          6379,
-        );
+      useFactory: (configService: ConfigType<typeof redisConfig>) => {
+        const redisHost = configService.host;
+        const redisPort = configService.port;
         const redisUrl = `redis://${redisHost}:${redisPort}`;
         return {
           connection: {
@@ -31,7 +27,7 @@ import { EmailModule } from 'src/email/email.module';
         };
       },
 
-      inject: [ConfigService],
+      inject: [redisConfig.KEY],
     }),
     BullModule.registerQueue(
       ...Object.values(QUEUE_NAME).map((queueName) => ({
