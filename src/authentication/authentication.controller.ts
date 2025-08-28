@@ -128,7 +128,6 @@ export class AuthenticationController {
   async sendVerificationCode(@Body('email') email: string) {
     return this.authenticationService.sendVerificationEmail(email);
   }
-  //the docuemntion below shall reflect that this get will redirect the user to complete the oauth flow
   @ApiOperation({
     summary: 'Google OAuth2 login',
     description: 'Initiates the Google OAuth2 login flow.',
@@ -150,9 +149,6 @@ export class AuthenticationController {
   @Get('oauth/github')
   githubAuth(@Res() res: Response) {
     res.redirect('/authentication/oauth/github/callback');
-  }
-  githubAuthRedirect() {
-    return;
   }
   @Post('oauth/github/callback')
   @UseGuards(GithubGuard)
