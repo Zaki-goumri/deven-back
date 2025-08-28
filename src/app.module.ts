@@ -2,15 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './config/app.config';
-import { AppConfig } from './config/interfaces/app-config.interface';
-import { QUEUE_NAME } from './common/constants/queues';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { UserModule } from './user/user.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
 import { QueueModule } from './queue/queue.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,8 +19,10 @@ import { TeamModule } from './team/team.module';
 import { AdminModule } from './admin/admin.module';
 import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import databaseConfig from './config/database.config';
+import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
+    RedisModule,
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     ThrottlerModule.forRoot({
       throttlers: [

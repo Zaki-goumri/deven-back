@@ -1,4 +1,4 @@
 export interface AccessTokenPayload {
-  sub: string; // User ID
+  sub:number; // User ID
   email: string; // User email
 }

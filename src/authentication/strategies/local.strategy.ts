@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { AuthenticationService } from '../authentication.service';
 import { User } from 'src/user/entities/user.entity';
 
+import { Request } from 'express';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private readonly authenticationService: AuthenticationService) {
@@ -13,7 +14,9 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
       passReqToCallback: true,
     });
   }
-  async validate(email: string, password: string): Promise<User> {
+
+  async validate(req:Request,email: string, password: string): Promise<User> {
+
     const user = await this.authenticationService.validateUser(email, password);
     return user;
   }

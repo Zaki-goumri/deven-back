@@ -1,5 +1,5 @@
 export interface RefreshTokenPayload {
-  id: string; // User ID
+  id: number; // User ID
   email: string; // User email
   refreshTokenId: string; // Unique identifier for the refresh token
   iat?: number; // Issued at time (optional)
