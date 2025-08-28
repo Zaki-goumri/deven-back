@@ -5,6 +5,7 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { Team } from './team.entity';
 
@@ -19,8 +20,11 @@ export class TeamInvite {
 
   @OneToOne(() => Team)
   @JoinColumn({ name: 'teamId' })
-  team: Team;
+  team: Relation<Team>;
 
   @Column({ type: 'varchar', length: 100 })
   content: string;
+
+  @Column({ type: 'boolean', nullable: true })
+  isAccepted: boolean | null;
 }

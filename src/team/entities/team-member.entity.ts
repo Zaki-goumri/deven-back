@@ -14,7 +14,7 @@ export class TeamMember {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @OneToOne(() => Team)
+  @OneToOne(() => Team, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teamId' })
   team: Team;
 

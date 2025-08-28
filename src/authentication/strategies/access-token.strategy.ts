@@ -21,4 +21,3 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     return payload.user;
   }
 }
-
