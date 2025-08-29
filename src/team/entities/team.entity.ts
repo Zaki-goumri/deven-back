@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Hackathon } from 'src/hackathon/entities/hackathon.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -48,6 +49,7 @@ export class Team {
     example: 'AB12CD34',
     maxLength: 8,
   })
+  @Exclude()
   @Column({ type: 'char', length: 8, unique: true })
   code: string;
 

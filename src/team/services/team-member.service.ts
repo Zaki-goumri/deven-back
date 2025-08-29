@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -19,18 +18,34 @@ export class TeamMemberService {
   ) {}
 
   async join(userId: number, teamId: number, insertCode: string) {
-    return await this.dataSource.transaction(async (manager) => {
-      const teamData = await this.getTeamWithLock(manager, teamId); //lock it to ensure consistency
+    return this.dataSource.transaction(async (manager) => {
+      const teamData = await this.getTeamWithMembersAndLock(manager, teamId);
 
       this.ensureRegistrationOpen(teamData);
       this.ensureCodeMatches(teamData, insertCode);
 
-      await this.ensureNotAlreadyMember(manager, userId, teamId);
-      await this.ensureTeamHasCapacity(manager, teamId);
+      const isAlreadyMember = teamData.members.includes(userId);
 
-      await this.addMember(manager, userId, teamId);
+      if (
+        !isAlreadyMember &&
+        teamData.members.length >= teamData.hackathonMaxInTeam
+      ) {
+        throw new BadRequestException('Team is full');
+      }
 
-      return { success: true, message: 'User joined the team' };
+      if (!isAlreadyMember) {
+        await this.addMember(manager, userId, teamId);
+        teamData.members.push(userId);
+      }
+
+      // no need to concentrate on return type now until fix the ui
+      return {
+        success: true,
+        message: isAlreadyMember
+          ? 'User already in the team'
+          : 'User joined the team',
+        memberCount: teamData.members.length,
+      };
     });
   }
 
@@ -38,31 +53,47 @@ export class TeamMemberService {
   // ─── HELPERS ──────────────────────────────────────────────
   //
 
-  private async getTeamWithLock(manager: EntityManager, teamId: number) {
-    const teamData = await manager
+  private async getTeamWithMembersAndLock(
+    manager: EntityManager,
+    teamId: number,
+  ) {
+    const raw = await manager
       .createQueryBuilder()
       .select([
-        'team.id',
-        'team.code',
-        'hackathon.maxInTeam',
-        'hackathon.registrationDate',
+        'team.id AS teamId',
+        'team.code AS teamCode',
+        'hackathon.maxInTeam AS hackathonMaxInTeam',
+        'hackathon.registrationDate AS hackathonRegistrationDate',
+        'member.userId AS memberUserId',
       ])
       .from('team', 'team')
       .innerJoin('hackathon', 'hackathon', 'hackathon.id = team.hackathonId')
+      .leftJoin('team_member', 'member', 'member.teamId = team.id')
       .where('team.id = :teamId', { teamId })
       .setLock('pessimistic_write')
-      .getRawOne<{
+      .getRawMany<{
         teamId: number;
         teamCode: string;
         hackathonMaxInTeam: number;
         hackathonRegistrationDate: Date;
+        memberUserId: number | null;
       }>();
 
-    if (!teamData) {
+    if (!raw.length) {
       throw new NotFoundException('Team not found');
     }
 
-    return teamData;
+    const { teamCode, hackathonMaxInTeam, hackathonRegistrationDate } = raw[0];
+
+    return {
+      teamId,
+      teamCode,
+      hackathonMaxInTeam,
+      hackathonRegistrationDate,
+      members: raw
+        .map((r) => r.memberUserId)
+        .filter((id): id is number => id !== null),
+    };
   }
 
   private ensureRegistrationOpen(teamData: {
@@ -82,47 +113,28 @@ export class TeamMemberService {
     }
   }
 
-  private async ensureNotAlreadyMember(
-    manager: EntityManager,
-    userId: number,
-    teamId: number,
-  ): Promise<void> {
-    const exists = await manager
-      .createQueryBuilder()
-      .select('1')
-      .from('team_member', 'member')
-      .where('member.userId = :userId', { userId })
-      .andWhere('member.teamId = :teamId', { teamId })
-      .getRawOne<{ exists: number }>();
-
-    if (exists) {
-      throw new ConflictException('User already in this team');
-    }
-  }
-
-  private async ensureTeamHasCapacity(manager: EntityManager, teamId: number) {
-    const { count } = (await manager
-      .createQueryBuilder()
-      .select('COUNT(*)', 'count')
-      .from('team_member', 'member')
-      .where('member.teamId = :teamId', { teamId })
-      .getRawOne<{ count: string }>()) ?? { count: '0' };
-
-    const memberCount = parseInt(count, 10);
-    return memberCount;
-  }
-
   private async addMember(
     manager: EntityManager,
     userId: number,
     teamId: number,
-  ) {
-    await manager
+  ): Promise<{ id: number; userId: number; teamId: number; createdAt: Date }> {
+    const result = await manager
       .createQueryBuilder()
       .insert()
       .into('team_member')
       .values({ userId, teamId })
+      .returning(['id', 'userId', 'teamId', 'createdAt'])
       .execute();
+
+    /*eslint-disable-next-line*/
+    const inserted = result.raw[0] as {
+      id: number;
+      userId: number;
+      teamId: number;
+      createdAt: Date;
+    };
+
+    return inserted;
   }
 
   async kick(kickedBy: number, kickedId: number, teamId: number) {

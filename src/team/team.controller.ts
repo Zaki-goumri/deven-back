@@ -69,7 +69,7 @@ export class TeamController {
   @ApiOkResponse({ description: 'Team found', type: Team })
   @ApiNotFoundResponse({ description: 'Team not found' })
   async getOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.teamService.getOne(id);
+    return this.teamService.getOne(id);
   }
 
   @Get('hackathon/:hackathonId')
@@ -79,7 +79,7 @@ export class TeamController {
     @Query() query: PaginationQueryDto,
     @Param('hackathonId', ParseIntPipe) hackathonId: number,
   ) {
-    return await this.teamService.getMany(query, hackathonId);
+    return this.teamService.getMany(query, hackathonId);
   }
 
   @Put(':id')
@@ -90,7 +90,7 @@ export class TeamController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTeamDto,
   ) {
-    return await this.teamService.update(dto, id);
+    return this.teamService.update(dto, id);
   }
 
   @Delete(':id')
@@ -104,6 +104,6 @@ export class TeamController {
     @Param('id', ParseIntPipe) id: number,
     @USER('id') userId: number,
   ) {
-    return await this.teamService.remove(id, userId);
+    return this.teamService.remove(id, userId);
   }
 }
