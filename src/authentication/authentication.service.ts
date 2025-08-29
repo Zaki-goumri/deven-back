@@ -82,7 +82,8 @@ export class AuthenticationService {
     const newUser = await this.userService.createOauthUser(user);
     //send welcome email
     await this.mailQueue.add(MAIL_JOBS.SEND_WELCOME_MAIL, {
-      to: newUser.email,
+      email: newUser.email,
+      name: newUser.username,
     });
     return newUser;
   }
