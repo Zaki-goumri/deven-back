@@ -71,7 +71,6 @@ export class AuthenticationService {
   }
 
   async logOauthUser(user: GoogleProfile | GithubProfile) {
-    console.log(user);
     const existingUser = await this.userService.findByEmail(
       user.emails![0].value,
     );

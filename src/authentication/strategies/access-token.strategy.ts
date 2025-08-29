@@ -6,7 +6,10 @@ import { AccessTokenPayload } from '../interfaces/access-token-payload.interface
 import authConfig from 'src/config/auth.config';
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class AccessTokenStrategy extends PassportStrategy(
+  Strategy,
+  'access-token',
+) {
   constructor(
     @Inject(authConfig.KEY)
     private readonly authConfiguration: ConfigType<typeof authConfig>,
@@ -21,4 +24,3 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     return payload.user;
   }
 }
-
