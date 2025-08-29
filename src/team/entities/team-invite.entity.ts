@@ -31,7 +31,7 @@ export class TeamInvite {
     description: 'The team linked to the invite',
     type: () => Team,
   })
-  @OneToOne(() => Team)
+  @OneToOne(() => Team, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teamId' })
   team: Relation<Team>;
 
@@ -51,9 +51,7 @@ export class TeamInvite {
   content: string;
 
   @ApiProperty({
-    description:
-      'Status of the invite: null = pending, false = rejected, true = accepted',
-    example: null,
+    description: 'invitation to join team',
     nullable: true,
   })
   @Column({ type: 'boolean', nullable: true })

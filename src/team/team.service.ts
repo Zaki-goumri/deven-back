@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -36,7 +36,7 @@ export class TeamService {
 
   static CACHE_PREFIX = 'team';
 
-  static TEAM_CODE_LENGTH = 5;
+  private TEAM_CODE_LENGTH = 5;
 
   static getCacheKey(id: number) {
     return `${TeamService.CACHE_PREFIX}:${id}`;
@@ -136,8 +136,12 @@ export class TeamService {
       message: `Team with id ${id} updated succesfully`,
     };
   }
-  async remove(id: number) {
-    await this.cancelInvitation(id);
+  async remove(id: number, userId: number) {
+    const team = await this.teamRepo.findOne({ where: { id } });
+    if (team?.createdBy !== userId)
+      throw new UnauthorizedException(
+        'you are not authorized to delete this team you are not creator of team',
+      );
     const { affected } = await this.teamRepo.delete({ id });
     if (!affected)
       throw new NotFoundException(
@@ -150,16 +154,7 @@ export class TeamService {
   }
 
   private generateTeamCode(): string {
-    return randomBytes(TeamService.TEAM_CODE_LENGTH)
-      .toString('hex')
-      .toUpperCase();
+    return randomBytes(this.TEAM_CODE_LENGTH).toString('hex').toUpperCase();
   }
   // let it here for now until create invitations service
-  private async cancelInvitation(teamId: number) {
-    const { affected } = await this.teamInviteRepo.update(
-      { teamId },
-      { isAccepted: false },
-    );
-    if (!affected) throw new BadRequestException('Invitation not found');
-  }
 }

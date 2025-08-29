@@ -35,11 +35,17 @@ import { SWAGGER_DESC } from 'src/common/constants/swagger-docs';
 // common responses
 @ApiTooManyRequestsResponse({
   description: SWAGGER_DESC.TOO_MANY_REQUESTS,
+  type: String,
+  example: 'too many requests',
 })
 @ApiInternalServerErrorResponse({
   description: SWAGGER_DESC.INTERNAL_SERVER_ERROR,
+  example: 'Internal Server Error',
 })
-@ApiUnauthorizedResponse({ description: SWAGGER_DESC.UNAUTHORIZED })
+@ApiUnauthorizedResponse({
+  description: SWAGGER_DESC.UNAUTHORIZED,
+  example: 'User unauthorized',
+})
 @Controller('teams')
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
@@ -66,12 +72,12 @@ export class TeamController {
     return this.teamService.getOne(id);
   }
 
-  @Get()
+  @Get('hackathon/:hackathonId')
   @ApiOperation({ summary: 'Get many teams with pagination' })
   @ApiResponse({ status: 200, description: 'List of teams with pagination' })
   async getMany(
     @Query() query: PaginationQueryDto,
-    @Query('hackathonId', ParseIntPipe) hackathonId: number,
+    @Param('hackathonId', ParseIntPipe) hackathonId: number,
   ) {
     return this.teamService.getMany(query, hackathonId);
   }
@@ -91,7 +97,13 @@ export class TeamController {
   @ApiOperation({ summary: 'Delete a team by ID' })
   @ApiOkResponse({ description: 'Team deleted successfully' })
   @ApiNotFoundResponse({ description: 'Team not found' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.teamService.remove(id);
+  @ApiUnauthorizedResponse({
+    description: 'check if the user who delete the team is the creator or not ',
+  })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @USER('id') userId: number,
+  ) {
+    return this.teamService.remove(id, userId);
   }
 }
