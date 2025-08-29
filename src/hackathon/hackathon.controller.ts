@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { HackathonService } from './hackathon.service';
 import { CreateHackathonDto } from './dto/create-hackathon.dto';
 import { UpdateHackathonDto } from './dto/update-hackathon.dto';
@@ -19,11 +27,14 @@ export class HackathonController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.hackathonService.findOne(+id);
+    return this.hackathonService.getOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHackathonDto: UpdateHackathonDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateHackathonDto: UpdateHackathonDto,
+  ) {
     return this.hackathonService.update(+id, updateHackathonDto);
   }
 

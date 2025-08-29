@@ -12,7 +12,7 @@ export class HackathonService {
     return `This action returns all hackathon`;
   }
 
-  findOne(id: number) {
+  async getOne(id: number) {
     return `This action returns a #${id} hackathon`;
   }
 
