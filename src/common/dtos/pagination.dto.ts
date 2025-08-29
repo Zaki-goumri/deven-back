@@ -76,6 +76,8 @@ export class PaginationDtoRes<T> {
   take: number;
   @ApiProperty({ description: 'The total number of pages' })
   lastId: number;
+  @ApiProperty({ description: 'success value for facilate rending in front' })
+  success = true;
 
   constructor(data: T[], take: number, lastId: number, hasMore: boolean) {
     this.data = data;

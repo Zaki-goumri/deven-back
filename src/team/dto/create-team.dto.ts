@@ -1,26 +1,14 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateTeamDto {
-  @IsNumber()
-  @IsNotEmpty()
-  hackathonId: number;
-
+  @ApiProperty({ description: 'name of the team an a hackathon' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(10)
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(8)
-  code: string;
-
+  @ApiProperty({ description: 'description of the team' })
   @IsString()
   @IsOptional()
   description: string | null;

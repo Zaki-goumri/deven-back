@@ -1,3 +1,3 @@
 export const LOGGER_NAMES = {
-  TEAMS: 'Teams',
+  TEAM_SERVICE: 'TeamService',
 } as const;

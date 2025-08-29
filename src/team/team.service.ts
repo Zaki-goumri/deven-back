@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -17,6 +18,10 @@ import {
 import { LOGGER_NAMES } from 'src/common/constants/logger';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { TeamInvite } from './entities/team-invite.entity';
+import {
+  isPostgresError,
+  PostgresErrorCode,
+} from 'src/common/constants/db-code';
 
 @Injectable()
 export class TeamService {
@@ -27,27 +32,56 @@ export class TeamService {
     @InjectRepository(TeamInvite)
     private readonly teamInviteRepo: Repository<TeamInvite>,
   ) {}
-  private logger = new Logger(LOGGER_NAMES.TEAMS);
+  private logger = new Logger(LOGGER_NAMES.TEAM_SERVICE);
+
   static CACHE_PREFIX = 'team';
+
+  static TEAM_CODE_LENGTH = 5;
+
   static getCacheKey(id: number) {
     return `${TeamService.CACHE_PREFIX}:${id}`;
   }
 
-  async create(dto: CreateTeamDto) {
+  async create(dto: CreateTeamDto, hackathonId: number, createdById: number) {
     const maxTries = 5;
     for (let i = 0; i < maxTries; i++) {
       try {
         const code = this.generateTeamCode();
-        const team = this.teamRepo.create({ ...dto, code });
+        const team = this.teamRepo.create({
+          ...dto,
+          code,
+          hackathonId,
+          createdBy: createdById,
+        });
         await this.teamRepo.save(team);
-        this.logger.log(`team with id ${team.id}`);
-        break;
-        /*eslint-disable-next-line*/
-      } catch (err: unknown) {
-        continue;
+        this.logger.log(
+          `team with id ${team.id} in hackathon with id ${hackathonId}`,
+        );
+        return {
+          data: {
+            ...team,
+            success: true,
+            message: `team is created successfully with id ${team.id}`,
+          },
+        };
+      } catch (err: any) {
+        if (isPostgresError(err)) {
+          switch (err.code) {
+            case PostgresErrorCode.UNIQUE_VIOLATION:
+              continue; // retry with new code
+            case PostgresErrorCode.FOREIGN_KEY_VIOLATION:
+              throw new NotFoundException('Hackathon not found');
+            default:
+              throw err;
+          }
+        }
       }
     }
+    throw new ConflictException(
+      'Could not generate a unique team code after several tries',
+    );
   }
+
   async getOne(id: number) {
     const cachedTeam = await this.redisService.get<Team>(
       TeamService.getCacheKey(id),
@@ -59,12 +93,16 @@ export class TeamService {
       TeamService.getCacheKey(teamFromDb.id),
       teamFromDb,
     );
-    return teamFromDb;
+    return { data: { ...teamFromDb }, success: true };
   }
-  async getMany({ take = 10, lastId = 0 }: PaginationQueryDto) {
+  async getMany(
+    { take = 10, lastId = 0 }: PaginationQueryDto,
+    hackathonId: number,
+  ) {
     const [teams] = await this.teamRepo.findAndCount({
       where: {
         id: MoreThan(lastId),
+        hackathonId,
       },
       take: take + 1,
       order: { id: 'ASC' },
@@ -83,28 +121,43 @@ export class TeamService {
       .returning('*')
       .execute();
 
-    if (!result.affected) throw new BadRequestException('update rejected');
+    // If no rows were updated, the team does not exist
+    if (!result.affected) {
+      throw new NotFoundException(`Team with id ${id} not found`);
+    }
     await this.redisService.del(TeamService.getCacheKey(id));
     const updatedTeam = Array.isArray(result.raw)
       ? (result.raw[0] as Team)
       : null;
-    return updatedTeam;
+
+    return {
+      data: { ...updatedTeam },
+      success: true,
+      message: `Team with id ${id} updated succesfully`,
+    };
   }
   async remove(id: number) {
     await this.cancelInvitation(id);
     const { affected } = await this.teamRepo.delete({ id });
     if (!affected)
-      throw new BadRequestException('team not found or something is wrong ');
-    return { succes: true, message: 'team is deleted ' };
+      throw new NotFoundException(
+        `team with id ${id} not found or something is wrong `,
+      );
+    return {
+      success: true,
+      message: `team with id ${id} is removed successfully`,
+    };
   }
 
   private generateTeamCode(): string {
-    return randomBytes(3).toString('hex').toUpperCase();
+    return randomBytes(TeamService.TEAM_CODE_LENGTH)
+      .toString('hex')
+      .toUpperCase();
   }
   // let it here for now until create invitations service
-  private async cancelInvitation(id: number) {
+  private async cancelInvitation(teamId: number) {
     const { affected } = await this.teamInviteRepo.update(
-      { team: { id } },
+      { teamId },
       { isAccepted: false },
     );
     if (!affected) throw new BadRequestException('Invitation not found');
