@@ -21,7 +21,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TeamService } from './team.service';
+import { TeamService } from './services/team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
@@ -69,7 +69,7 @@ export class TeamController {
   @ApiOkResponse({ description: 'Team found', type: Team })
   @ApiNotFoundResponse({ description: 'Team not found' })
   async getOne(@Param('id', ParseIntPipe) id: number) {
-    return this.teamService.getOne(id);
+    return await this.teamService.getOne(id);
   }
 
   @Get('hackathon/:hackathonId')
@@ -79,7 +79,7 @@ export class TeamController {
     @Query() query: PaginationQueryDto,
     @Param('hackathonId', ParseIntPipe) hackathonId: number,
   ) {
-    return this.teamService.getMany(query, hackathonId);
+    return await this.teamService.getMany(query, hackathonId);
   }
 
   @Put(':id')
@@ -90,7 +90,7 @@ export class TeamController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTeamDto,
   ) {
-    return this.teamService.update(dto, id);
+    return await this.teamService.update(dto, id);
   }
 
   @Delete(':id')
@@ -104,6 +104,6 @@ export class TeamController {
     @Param('id', ParseIntPipe) id: number,
     @USER('id') userId: number,
   ) {
-    return this.teamService.remove(id, userId);
+    return await this.teamService.remove(id, userId);
   }
 }
