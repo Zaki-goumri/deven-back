@@ -17,7 +17,6 @@ import {
 } from 'src/common/dtos/pagination.dto';
 import { LOGGER_NAMES } from 'src/common/constants/logger';
 import { UpdateTeamDto } from './dto/update-team.dto';
-import { TeamInvite } from './entities/team-invite.entity';
 import {
   isPostgresError,
   PostgresErrorCode,
@@ -29,8 +28,6 @@ export class TeamService {
     @InjectRepository(Team)
     private readonly teamRepo: Repository<Team>,
     private readonly redisService: RedisService,
-    @InjectRepository(TeamInvite)
-    private readonly teamInviteRepo: Repository<TeamInvite>,
   ) {}
   private logger = new Logger(LOGGER_NAMES.TEAM_SERVICE);
 
@@ -51,7 +48,7 @@ export class TeamService {
           ...dto,
           code,
           hackathonId,
-          createdBy: createdById,
+          ownerId: createdById,
         });
         await this.teamRepo.save(team);
         this.logger.log(
@@ -137,15 +134,10 @@ export class TeamService {
     };
   }
   async remove(id: number, userId: number) {
-    const team = await this.teamRepo.findOne({ where: { id } });
-    if (team?.createdBy !== userId)
-      throw new UnauthorizedException(
-        'you are not authorized to delete this team you are not creator of team',
-      );
-    const { affected } = await this.teamRepo.delete({ id });
+    const { affected } = await this.teamRepo.delete({ id, ownerId: userId });
     if (!affected)
-      throw new NotFoundException(
-        `team with id ${id} not found or something is wrong `,
+      throw new UnauthorizedException(
+        `you not authorized to delete team with id ${id}`,
       );
     return {
       success: true,
@@ -156,5 +148,4 @@ export class TeamService {
   private generateTeamCode(): string {
     return randomBytes(this.TEAM_CODE_LENGTH).toString('hex').toUpperCase();
   }
-  // let it here for now until create invitations service
 }

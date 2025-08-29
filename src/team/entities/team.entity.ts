@@ -61,19 +61,19 @@ export class Team {
   description: string | null;
 
   @ApiProperty({
-    description: 'User who created the team',
+    description: 'User who own the team',
     type: () => User,
   })
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'createdBy' })
-  creator: User;
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
 
   @ApiProperty({
-    description: 'ID of the creator (foreign key to user)',
+    description: 'ID of the owner (foreign key to user)',
     example: 7,
   })
   @Column()
-  createdBy: number;
+  ownerId: number;
 
   @ApiProperty({
     description: 'Date when the team was created',
