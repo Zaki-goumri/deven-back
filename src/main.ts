@@ -118,11 +118,11 @@ async function bootstrap() {
 
   //SWAGGER DOCS BUILDER
   const config = new DocumentBuilder()
-    .setTitle('Portals Core Api Documentation')
-    .setDescription('The Portals Core Api Documentation')
+    .setTitle('Deven Api')
+    .setDescription('The Deven API description V1.0')
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('Portals')
+    .addTag('Deven')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.use(
