@@ -12,7 +12,6 @@ import {
   MockRepository,
 } from 'src/common/utils/database/repos-mock.utils';
 import { registerDto } from 'src/authentication/dtos/requests/register.dto';
-import { generateHash } from 'src/common/utils/authentication/bcrypt.utils';
 
 describe('UserService', () => {
   let service: UserService;
