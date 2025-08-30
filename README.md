@@ -1,7 +1,7 @@
 
 # Deven Backend
 
-This is the **backend repository** for the Deven platform. It is built using the [NestJS](https://nestjs.com/) framework and follows a clean, modular architecture to ensure scalability, maintainability, and developer productivity, and the starter template is provided by [Mouloud]("https://github.com/mouloud240") under repo name **nestJS-starter**.
+This is the **backend repository** for the Deven platform. It is built using the [NestJS](https://nestjs.com/) framework and follows a clean, modular architecture to ensure scalability, maintainability, and developer productivity, and the starter template is provided by [Mouloud]("https://github.com/mouloud240/") under repo name **nestJS-starter**.
 
 ## Features
 

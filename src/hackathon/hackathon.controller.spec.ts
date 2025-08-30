@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HackathonController } from './hackathon.controller';
 import { HackathonService } from './hackathon.service';
+import { createMock } from '@golevelup/ts-jest';
 
 describe('HackathonController', () => {
   let controller: HackathonController;
@@ -8,7 +9,12 @@ describe('HackathonController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HackathonController],
-      providers: [HackathonService],
+      providers: [
+        {
+          provide: HackathonService,
+          useValue: createMock(),
+        },
+      ],
     }).compile();
 
     controller = module.get<HackathonController>(HackathonController);
