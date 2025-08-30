@@ -1,10 +1,11 @@
 {
-  "name": "nest-starter",
+  "name": "deven",
+
+  "license":"UNLICENSED",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A hackathon management platform",
+  "author": "Mouloud Hasrane/ Zakaria Goumri",
   "private": true,
-  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
