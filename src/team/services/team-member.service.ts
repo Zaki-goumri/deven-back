@@ -17,26 +17,29 @@ export class TeamMemberService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async join(userId: number, teamId: number, insertCode: string) {
+  async join(userId: number, insertCode: string) {
     return this.dataSource.transaction(async (manager) => {
-      const teamData = await this.getTeamWithMembersAndLock(manager, teamId);
+      const teamData = await this.getTeamWithMembersAndLock(
+        manager,
+        insertCode,
+      );
 
       this.ensureRegistrationOpen(teamData);
       this.ensureCodeMatches(teamData, insertCode);
 
       const isAlreadyMember = teamData.members.includes(userId);
 
-      if (
-        !isAlreadyMember &&
-        teamData.members.length >= teamData.hackathonMaxInTeam
-      ) {
+      if (isAlreadyMember)
+        throw new BadRequestException(
+          `user with ${userId} is already in the team`,
+        );
+
+      if (teamData.members.length >= teamData.hackathonMaxInTeam) {
         throw new BadRequestException('Team is full');
       }
 
-      if (!isAlreadyMember) {
-        await this.addMember(manager, userId, teamId);
-        teamData.members.push(userId);
-      }
+      await this.addMember(manager, userId, teamData.teamId);
+      teamData.members.push(userId);
 
       // no need to concentrate on return type now until fix the ui
       return {
@@ -55,7 +58,7 @@ export class TeamMemberService {
 
   private async getTeamWithMembersAndLock(
     manager: EntityManager,
-    teamId: number,
+    insertCode: string,
   ) {
     const raw = await manager
       .createQueryBuilder()
@@ -69,7 +72,7 @@ export class TeamMemberService {
       .from('team', 'team')
       .innerJoin('hackathon', 'hackathon', 'hackathon.id = team.hackathonId')
       .leftJoin('team_member', 'member', 'member.teamId = team.id')
-      .where('team.id = :teamId', { teamId })
+      .where('team.code = :insertCode', { insertCode })
       .setLock('pessimistic_write')
       .getRawMany<{
         teamId: number;
@@ -83,7 +86,8 @@ export class TeamMemberService {
       throw new NotFoundException('Team not found');
     }
 
-    const { teamCode, hackathonMaxInTeam, hackathonRegistrationDate } = raw[0];
+    const { teamId, teamCode, hackathonMaxInTeam, hackathonRegistrationDate } =
+      raw[0];
 
     return {
       teamId,
