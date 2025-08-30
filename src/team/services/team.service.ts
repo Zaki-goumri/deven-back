@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
-import { CreateTeamDto } from './dto/create-team.dto';
+import { CreateTeamDto } from '../dto/create-team.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Team } from './entities/team.entity';
+import { Team } from '../entities/team.entity';
 import { MoreThan, Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
 import {
@@ -16,7 +16,7 @@ import {
   PaginationQueryDto,
 } from 'src/common/dtos/pagination.dto';
 import { LOGGER_NAMES } from 'src/common/constants/logger';
-import { UpdateTeamDto } from './dto/update-team.dto';
+import { UpdateTeamDto } from '../dto/update-team.dto';
 import {
   isPostgresError,
   PostgresErrorCode,

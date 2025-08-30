@@ -21,7 +21,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TeamService } from './team.service';
+import { TeamService } from './services/team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
