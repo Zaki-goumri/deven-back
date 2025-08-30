@@ -45,7 +45,7 @@
         #  run: pnpm run lint
          # continue-on-error: false
         - name: Run tests with coverage
-          run: pnpm run test -- --coverage
+          run: pnpm run test:cov
         - name: Upload coverage
           uses: actions/upload-artifact@v4
           with:
