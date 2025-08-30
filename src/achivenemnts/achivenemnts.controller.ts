@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AchivenemntsService } from './achivenemnts.service';
 import { CreateAchivenemntDto } from './dto/create-achivenemnt.dto';
 import { UpdateAchivenemntDto } from './dto/update-achivenemnt.dto';
@@ -23,7 +31,10 @@ export class AchivenemntsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAchivenemntDto: UpdateAchivenemntDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAchivenemntDto: UpdateAchivenemntDto,
+  ) {
     return this.achivenemntsService.update(+id, updateAchivenemntDto);
   }
 

@@ -5,4 +5,3 @@ export const RedisClientType = {
 
 export type RedisClient =
   (typeof RedisClientType)[keyof typeof RedisClientType];
-

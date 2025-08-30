@@ -56,4 +56,3 @@ import redisConfig from './config/redis.config';
   providers: [AppService],
 })
 export class AppModule {}
-

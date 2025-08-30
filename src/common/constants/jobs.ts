@@ -17,5 +17,4 @@ export const MAIL_JOBS = {
   SEND_RESET_PASSWORD_MAIL: 'send_reset_password_mail',
   SEND_WELCOME_MAIL: 'send_welcome_mail',
   SEND_NOTIFICATION_MAIL: 'send_notification_mail',
-
 } as const;

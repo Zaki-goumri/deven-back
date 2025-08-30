@@ -16,7 +16,6 @@ import { UserInfo } from './userInfo.entity';
 @Entity('users')
 @Index(['username'], { unique: true })
 @Index(['email'], { unique: true })
-
 export class User {
   @ApiProperty({
     description: 'The unique identifier of the user',
@@ -104,5 +103,5 @@ export class User {
   })
   @OneToOne(() => UserInfo)
   @JoinColumn({ name: 'infoId' }) // Specify the column name
-  info:Relation< UserInfo>;
+  info: Relation<UserInfo>;
 }

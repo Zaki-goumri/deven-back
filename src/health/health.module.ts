@@ -4,6 +4,6 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 @Module({
   controllers: [HealthController],
-  imports: [TerminusModule,HttpModule],
+  imports: [TerminusModule, HttpModule],
 })
 export class HealthModule {}

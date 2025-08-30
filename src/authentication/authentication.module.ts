@@ -34,7 +34,7 @@ import { GoogleStrategy } from './strategies/oauth/google.strategy';
     RefreshTokenStrategy,
     RefreshTokenGuard,
     GithubStrategy,
-    GoogleStrategy
+    GoogleStrategy,
   ],
   exports: [AcessTokenGuard],
 })

@@ -1,0 +1,48 @@
+
+#This workflow Makes sure that the code builds and runs unit tests succefully so we can integrate to the main branch safely and ensure code quality
+ # This workflow is triggered on pull requests to the main branch and can be run manually from the Actions tab
+ # To learn more about GitHub Actions, see: https://docs.github.com/en/actions
+ 
+ name: Continuous Integration
+ on:
+  pull_request:
+   branches: [ main ]
+   paths-ignore:
+     - 'docs/**'
+     - '.github/**'
+     - '*.md'
+     - 'CHANGELOG.md'
+     - 'LICENSE'
+     - 'README.md'
+     - 'CODE_OF_CONDUCT.md'
+     - 'CONTRIBUTING.md'
+     - 'SECURITY.md'
+     - '*.yml'
+     - '*.yaml'
+ jobs:
+   build_and_test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: '22'
+            cache: 'pnpm'
+        - name: Install pnpm using corepack
+          run: corepack enable && corepack prepare pnpm@latest --activate
+        - name: Install dependencies
+          run: pnpm install
+        - name: Build the project 
+          run: pnpm run build
+        # This is commented out for now, but will be enabled after fixing linting issues
+        # #- name: Run ESLint
+        #  run: pnpm run lint
+         # continue-on-error: false
+        - name: Run tests with coverage
+          run: pnpm run test -- --coverage
+        - name: Upload coverage
+          uses: actions/upload-artifact@v3
+          with:
+            name: coverage-report
+            path: coverage
+

@@ -1,5 +1,3 @@
 import { AppConfig } from './interfaces/app-config.interface';
 
-export default (): AppConfig => ({
-  
-});
+export default (): AppConfig => ({});
