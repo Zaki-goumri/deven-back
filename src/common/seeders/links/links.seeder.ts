@@ -15,6 +15,6 @@ export class LinksSeeder {
       providers.map((provider) => provider),
     );
     const savedLinks = await this.LinksRepo.save(createdLinks);
-    console.log('Links Seeded Succeffuly:', savedLinks.length);
+    console.log('Links Seeded Successfully:', savedLinks.length);
   }
 }
