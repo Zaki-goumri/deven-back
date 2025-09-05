@@ -6,6 +6,7 @@ import { DisplayUserDto } from 'src/user/dto/display-user.dto';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 import { UserService } from 'src/user/user.service';
 
+@Injectable()
 export class OrganizationFollowService {
   logger = new Logger(OrganizationFollowService.name);
   constructor(
