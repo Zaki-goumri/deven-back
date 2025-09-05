@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { registerDto } from 'src/authentication/dtos/requests/register.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -58,5 +62,18 @@ export class UserService {
   }
   updateUserByEmail(email: string, updateData: Partial<User>) {
     return this.userRepository.update({ email }, updateData);
+  }
+  async getFollowedOrganizations(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: {
+        followedOrganizations: true,
+      },
+    });
+    //Intentionally not using NotFoundException here to trigger refersh token interceptor on client side in case user not found
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return user.followedOrganizations || [];
   }
 }

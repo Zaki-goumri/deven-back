@@ -87,6 +87,7 @@ export class Organization {
   followers: User[];
   @OneToMany(() => OrganizationLink, (link) => link.organization, {
     cascade: true,
+    orphanedRowAction: 'delete',
   })
   link: OrganizationLink[];
 }

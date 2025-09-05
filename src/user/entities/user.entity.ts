@@ -9,9 +9,11 @@ import {
   OneToOne,
   Index,
   Relation,
+  ManyToMany,
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
+import { Organization } from 'src/organization/entities/organization.entity';
 
 @Entity('users')
 @Index(['username'], { unique: true })
@@ -104,4 +106,6 @@ export class User {
   @OneToOne(() => UserInfo)
   @JoinColumn({ name: 'infoId' }) // Specify the column name
   info: Relation<UserInfo>;
+  @ManyToMany(() => Organization, (organization) => organization.followers)
+  followedOrganizations: Relation<Organization[]>;
 }
