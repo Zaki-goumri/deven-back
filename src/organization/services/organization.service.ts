@@ -38,10 +38,11 @@ export class OrganizationService {
     orgId: number,
     data: UpdateOrganizationDto,
   ): Promise<Organization> {
-    const querryRunner = this.dataSource.createQueryRunner();
-    await querryRunner.connect();
-    await querryRunner.startTransaction('REPEATABLE READ');
-    const organizationTx = querryRunner.manager.getRepository(Organization);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    //Important  to set read commited here so we can return the version that the user updated in case there was a concurrent update (or delete)
+    await queryRunner.startTransaction('REPEATABLE READ');
+    const organizationTx = queryRunner.manager.getRepository(Organization);
     const affected = await organizationTx.update(
       { id: orgId },
       {
@@ -59,8 +60,8 @@ export class OrganizationService {
     });
 
     //Safe to assume it exists since the affected is not 0 and we are on a transaction here (important)
-    await querryRunner.commitTransaction();
-    await querryRunner.release();
+    await queryRunner.commitTransaction();
+    await queryRunner.release();
     return org!;
   }
   async findOne(id: number): Promise<Organization> {

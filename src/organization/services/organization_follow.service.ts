@@ -92,7 +92,7 @@ export class OrganizationFollowService {
     if (!org) {
       throw new NotFoundException(`Organization with ID ${orgId} not found`);
     }
-    //TODO
+    //TODO:
     //There has to be a better typeorm way to slice on db level in the Repository pattern else I will need to use query builder
     return org.followers.slice(0, take).map((user) => user);
   }
