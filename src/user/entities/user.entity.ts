@@ -107,5 +107,5 @@ export class User {
   @JoinColumn({ name: 'infoId' }) // Specify the column name
   info: Relation<UserInfo>;
   @ManyToMany(() => Organization, (organization) => organization.followers)
-  followedOrganizations: Relation<Organization[]>;
+  followedOrganizations: Relation<Organization>[];
 }

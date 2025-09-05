@@ -11,6 +11,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { OrganizationLink } from './org_link.entity';
@@ -47,15 +48,16 @@ export class Organization {
   @ApiProperty({
     description: 'id of the owner',
   })
+  //TODO are we sure this is a one to one ?can't the user have multiple organizations
   @OneToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'ownerId' })
-  Owner: User;
+  Owner: Relation<User>;
   @ApiProperty({
     description: 'id of creator in user table',
   })
   @OneToOne(() => User, { nullable: true }) //user deleted we can remove the colum not too neccessary
   @JoinColumn({ name: 'createdBy' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ApiProperty({
     description: 'The University to which the club is associated',
@@ -84,7 +86,7 @@ export class Organization {
       name: 'followerId',
     },
   })
-  followers: User[];
+  followers: Relation<User>[];
   @OneToMany(() => OrganizationLink, (link) => link.organization, {
     cascade: true,
     orphanedRowAction: 'delete',
