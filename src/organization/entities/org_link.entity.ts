@@ -18,7 +18,7 @@ import { LinkProvider } from 'src/common/entities/link-provider.entity';
 // second indexing will be harder to manage and you will have a big table with many rows that will be hard to index and query.
 // There was also a consideration to use a view table but their readonly nature in most databases and added complexity made us disregard this choice
 // so the final decision was to create a separate table for each entity type that needs links.
-// This also comes with it sets of challenges including migration management and bloated schema but this is the most scalable approach since we tune and index each independantly based on the  entity needs.
+// This also comes with its sets of challenges including migration management and bloated schema but this is the most scalable approach since we tune and index each independently based on the  entity needs.
 // So currently we will have organization_links , hackathon_links, user_links.
 @Entity('organization_links')
 export class OrganizationLink {

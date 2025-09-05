@@ -1,7 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
-import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { DisplayUserDto } from 'src/user/dto/display-user.dto';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 import { UserService } from 'src/user/user.service';
@@ -15,7 +20,6 @@ export class OrganizationFollowService {
     private readonly dataSource: DataSource,
     private readonly userService: UserService,
   ) {}
-  //Todo implenment this
   async follow(orgId: number, userId: number): Promise<void> {
     this.logger.log(`User ${userId} followed organization ${orgId}`);
 
