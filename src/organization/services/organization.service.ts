@@ -82,7 +82,9 @@ export class OrganizationService {
     const org = await this.organizationRepo.findOne({
       where: { id },
       relations: {
-        link: true,
+        link: {
+          provider: true,
+        },
         location: true,
         Owner: {
           info: true,

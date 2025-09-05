@@ -8,6 +8,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,10 +24,13 @@ import { USER } from 'src/authentication/decorators/user.decorartor';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 import { Organization } from '../entities/organization.entity';
 import { DisplayUserDto } from 'src/user/dto/display-user.dto';
+import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 
 @ApiBearerAuth()
 @ApiTags('Organization Follow')
 @Controller('organization')
+
+@UseGuards(AccessTokenGuard)
 export class OrganizationFollowController {
   constructor(
     private readonly organizationFollowService: OrganizationFollowService,

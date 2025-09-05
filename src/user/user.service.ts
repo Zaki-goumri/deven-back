@@ -32,8 +32,8 @@ export class UserService {
     });
 
     const userInfo = this.userInfoRepository.create({
-      firstName: profile.name?.givenName,
-      lastName: profile.name?.familyName,
+      firstName: profile.name?.givenName ?? '',
+      lastName: profile.name?.familyName ?? '',
       //TODO we need to define this later and uncommnet this
       //profilePicture: profile.photos?.[0]?.value,
     });

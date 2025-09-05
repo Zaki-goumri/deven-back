@@ -105,7 +105,7 @@ export class User {
     description: 'The user info associated with the user',
     type: () => UserInfo,
   })
-  @OneToOne(() => UserInfo)
+  @OneToOne(() => UserInfo, { cascade: true, eager: true, nullable: true })
   @JoinColumn({ name: 'infoId' }) // Specify the column name
   info: Relation<UserInfo>;
   @ManyToMany(() => Organization, (organization) => organization.followers)
