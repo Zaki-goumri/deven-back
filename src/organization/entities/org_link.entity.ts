@@ -28,7 +28,10 @@ export class OrganizationLink {
   url: string;
   // Relation with LinkProvider
   @JoinColumn()
-  @ManyToOne(() => LinkProvider, { eager: true, cascade: true })
+  @ManyToOne(() => LinkProvider, {
+    eager: true,
+    cascade: true,
+  })
   provider: LinkProvider;
   @ManyToOne(() => Organization, (organization) => organization.id, {
     onDelete: 'CASCADE',

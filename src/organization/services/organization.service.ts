@@ -46,17 +46,6 @@ export class OrganizationService {
     //Important  to set read commited here so we can return the version that the user updated in case there was a concurrent update (or delete)
     await queryRunner.startTransaction('REPEATABLE READ');
     const organizationTx = queryRunner.manager.getRepository(Organization);
-    const affected = await organizationTx.update(
-      { id: orgId },
-      {
-        ...data,
-        location: { ...data.location },
-        link: data.links,
-      },
-    );
-    if (affected.affected == 0) {
-      throw new NotFoundException('Organization not found');
-    }
     const org = await organizationTx.findOne({
       where: { id: orgId },
       relations: {
@@ -72,11 +61,21 @@ export class OrganizationService {
         Owner: UserService.getDisplayUserInclude(),
       },
     });
+    if (!org) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      throw new NotFoundException('Organization not found');
+    }
+    Object.assign(org, {
+      ...data,
+      location: data.location ? { ...data.location } : org.location,
+      links: data.links ? [...data.links] : org.link,
+    });
 
-    //Safe to assume it exists since the affected is not 0 and we are on a transaction here (important)
+    await organizationTx.save(org);
     await queryRunner.commitTransaction();
     await queryRunner.release();
-    return org!;
+    return org;
   }
   async findOne(id: number): Promise<Organization> {
     const org = await this.organizationRepo.findOne({
