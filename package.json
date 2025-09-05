@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed:links":"ts-node ./src/common/seeders/links/index.ts"
+    "seed:links":"ts-node dist/common/seeders/links/index.js"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
