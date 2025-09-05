@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from '../entities/organization.entity';
 import { OrganizationLink } from '../entities/org_link.entity';
 import { CreateOrganizationDto } from '../dtos/create-organization.dto';
 import { UpdateOrganizationDto } from '../dtos/update-organization.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class OrganizationService {
@@ -25,13 +26,15 @@ export class OrganizationService {
       location: { ...data.location },
     });
 
-    const links = data.links.map((link) => {
-      return this.linkRepo.create({
-        ...link,
+    if (data.links && data.links.length > 0) {
+      const links = data.links.map((link) => {
+        return this.linkRepo.create({
+          ...link,
+        });
       });
-    });
-    //Auto save since cascade is true on links
-    newOrg.link = links;
+      //Auto save since cascade is true on links
+      newOrg.link = links;
+    }
     return this.organizationRepo.save(newOrg);
   }
   async updateOne(
@@ -56,7 +59,18 @@ export class OrganizationService {
     }
     const org = await organizationTx.findOne({
       where: { id: orgId },
-      relations: { link: true, location: true, Owner: true },
+      relations: {
+        link: true,
+        location: true,
+
+        Owner: {
+          info: true,
+        },
+      },
+      select: {
+        ...OrganizationService.getOragnizationSelect(),
+        Owner: UserService.getDisplayUserInclude(),
+      },
     });
 
     //Safe to assume it exists since the affected is not 0 and we are on a transaction here (important)
@@ -67,7 +81,17 @@ export class OrganizationService {
   async findOne(id: number): Promise<Organization> {
     const org = await this.organizationRepo.findOne({
       where: { id },
-      relations: { link: true, location: true, Owner: true },
+      relations: {
+        link: true,
+        location: true,
+        Owner: {
+          info: true,
+        },
+      },
+      select: {
+        ...OrganizationService.getOragnizationSelect(),
+        Owner: UserService.getDisplayUserInclude(),
+      },
     });
     if (!org) {
       throw new NotFoundException('Organization not found');
@@ -81,5 +105,19 @@ export class OrganizationService {
       throw new NotFoundException('Organization not found');
     }
     return true;
+  }
+  static getOragnizationSelect(): FindOptionsSelect<Organization> {
+    return {
+      id: true,
+      isVerified: true,
+      name: true,
+      description: true,
+      location: true,
+      link: true,
+      university: true,
+
+      createdAt: true,
+      updatedAt: true,
+    };
   }
 }

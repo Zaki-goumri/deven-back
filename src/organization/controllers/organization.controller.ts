@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,10 +25,12 @@ import { CreateOrganizationDto } from '../dtos/create-organization.dto';
 import { UpdateOrganizationDto } from '../dtos/update-organization.dto';
 import { USER } from 'src/authentication/decorators/user.decorartor';
 import { Organization } from '../entities/organization.entity';
+import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 
 @ApiBearerAuth()
 @ApiTags('Organization')
 @Controller('organization')
+@UseGuards(AccessTokenGuard)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 

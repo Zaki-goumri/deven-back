@@ -4,7 +4,7 @@ import { AuthenticationController } from './authentication.controller';
 import { LocalStrategy } from './strategies/local.strategy';
 import { LocalGuard } from './guards/local.guard';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
-import { AcessTokenGuard } from './guards/access-token.guard';
+import { AccessTokenGuard } from './guards/access-token.guard';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { JwtModule } from '@nestjs/jwt';
@@ -30,12 +30,12 @@ import { GoogleStrategy } from './strategies/oauth/google.strategy';
     QueueModule,
     LocalGuard,
     AccessTokenStrategy,
-    AcessTokenGuard,
+    AccessTokenGuard,
     RefreshTokenStrategy,
     RefreshTokenGuard,
     GithubStrategy,
     GoogleStrategy,
   ],
-  exports: [AcessTokenGuard],
+  exports: [AccessTokenGuard],
 })
 export class AuthenticationModule {}

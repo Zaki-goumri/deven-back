@@ -6,7 +6,7 @@ import {
 import { User } from './entities/user.entity';
 import { registerDto } from 'src/authentication/dtos/requests/register.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsRelations, FindOptionsSelect, Repository } from 'typeorm';
 import { generateHash } from 'src/common/utils/authentication/bcrypt.utils';
 import { Profile as GoogleProfile } from 'passport-google-oauth20';
 import { Profile as GithubProfile } from 'passport-github2';
@@ -75,5 +75,15 @@ export class UserService {
       throw new UnauthorizedException('User not found');
     }
     return user.followedOrganizations || [];
+  }
+  static getDisplayUserInclude(): FindOptionsSelect<User> {
+    return {
+      id: true,
+      username: true,
+      info: {
+        firstName: true,
+        lastName: true,
+      },
+    };
   }
 }

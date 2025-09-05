@@ -26,7 +26,7 @@ export class Organization {
   @ApiProperty({
     description: 'name of the organization',
   })
-  @Column({ type: 'varchar', unique: true, length: 20 })
+  @Column({ type: 'varchar', unique: true, length: 40 })
   name: string;
   @ApiProperty({
     description: 'a description of a bio for the organization',
@@ -42,7 +42,7 @@ export class Organization {
   @ApiProperty({
     description: 'id of location record in location table',
   })
-  @OneToOne(() => Location, { nullable: false })
+  @OneToOne(() => Location, { nullable: false, cascade: true })
   @JoinColumn({ name: 'locationId' })
   location: Location;
   @ApiProperty({

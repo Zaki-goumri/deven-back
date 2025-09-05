@@ -67,7 +67,7 @@ export class CreateOrganizationDto {
   })
   @IsString()
   @MinLength(2)
-  @MaxLength(20)
+  @MaxLength(40)
   name: string;
 
   @ApiProperty({
@@ -96,8 +96,9 @@ export class CreateOrganizationDto {
   })
   @IsArray()
   @ValidateNested({ each: true })
+  @IsOptional()
   @Type(() => CreateLinkDto)
-  links: CreateLinkDto[];
+  links?: CreateLinkDto[];
 
   @ApiProperty({
     description: 'location of the organization',

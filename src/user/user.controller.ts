@@ -3,10 +3,10 @@ import { UserService } from './user.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { USER } from 'src/authentication/decorators/user.decorartor';
 import { User } from './entities/user.entity';
-import { AcessTokenGuard } from 'src/authentication/guards/access-token.guard';
+import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 
 @Controller('user')
-@UseGuards(AcessTokenGuard)
+@UseGuards(AccessTokenGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @ApiOperation({ summary: 'Get current logged on user details' })
