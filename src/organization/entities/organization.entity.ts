@@ -76,7 +76,7 @@ export class Organization {
   //cover page
 
   //create a join table for followers
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.followedOrganizations)
   @JoinTable({
     name: 'organization_followers',
     joinColumn: {

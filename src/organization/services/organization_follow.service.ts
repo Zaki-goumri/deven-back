@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
@@ -70,36 +72,40 @@ export class OrganizationFollowService {
     orgId: number,
     { lastId, take }: PaginationQueryDto,
   ): Promise<DisplayUserDto[]> {
-    const org = await this.orgRepo.findOne({
-      where: {
-        id: orgId,
-        followers: {
-          id: MoreThan(lastId),
-        },
-      },
-      order: {
-        followers: {
-          id: 'ASC',
-        },
-      },
-      relations: { followers: { info: true } },
-      select: {
-        followers: {
-          id: true,
-          username: true,
-          info: {
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-    });
-    if (!org) {
+    const qb = this.orgRepo
+      .createQueryBuilder('org')
+      .leftJoin('org.followers', 'follower')
+      .leftJoinAndSelect('follower.info', 'info')
+      .where('org.id = :orgId', { orgId })
+
+      .andWhere('follower.id >= :lastId', { lastId })
+      .orderBy('follower.id', 'ASC')
+      .take(take)
+      .select([
+        'follower.id',
+        'follower.username',
+        'follower.email',
+        'info.firstName',
+        'info.lastName',
+      ]);
+
+    //Just fuck typeorm at this point
+    const followersRaw = await qb.getRawMany();
+    if (!followersRaw) {
       throw new NotFoundException(`Organization with ID ${orgId} not found`);
     }
-    //TODO:
-    //There has to be a better typeorm way to slice on db level in the Repository pattern else I will need to use query builder
-    return org.followers.slice(0, take).map((user) => user);
+    return followersRaw.map((follower) => this.mapToDisplayUserDto(follower));
+  }
+  private mapToDisplayUserDto(user: any): DisplayUserDto {
+    const mapToDisplayUserDto = (row: any): DisplayUserDto => ({
+      id: row.follower_id,
+      username: row.follower_username,
+      info: {
+        firstName: row.info_firstName || '',
+        lastName: row.info_lastName || '',
+      },
+    });
+    return mapToDisplayUserDto(user);
   }
   async getFollowedOrgs(userId: number): Promise<Organization[]> {
     return this.userService.getFollowedOrganizations(userId);
