@@ -10,7 +10,7 @@ import { Organization } from 'src/organization/entities/organization.entity';
 import { LinkProvider } from 'src/common/entities/link-provider.entity';
 
 // ReadMe important note :
-// On the first approach the enginner(me) was going to use a polomoriphic relation to handle links in all entities , however this was proven to be a bad idea .
+// On the first approach the engineer(me) was going to use a polymorphic relation to handle links in all entities , however this was proven to be a bad idea .
 // first Typeorm does not support it natively and it will be hard to manage in the future .
 // if you decide to do it anyways you will have a hard tradoff you need to make , more io time vs more cpu time.
 // both of them are bad, you will have more cpu time if you use an left join and then filter entity type based on your need
