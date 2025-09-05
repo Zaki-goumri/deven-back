@@ -16,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 import { OrganizationFollowService } from '../services/organization_follow.service';
 import { USER } from 'src/authentication/decorators/user.decorartor';
@@ -33,8 +34,12 @@ export class OrganizationFollowController {
 
   @ApiOperation({ summary: 'Follow an organization' })
   @ApiOkResponse({ description: 'Successfully followed the organization.' })
-  @ApiConflictResponse({ description: 'User already follows this organization.' })
+  @ApiConflictResponse({
+    description: 'User already follows this organization.',
+  })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
+
+  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @Post(':id/follow')
   @HttpCode(HttpStatus.OK)
   follow(
@@ -47,8 +52,11 @@ export class OrganizationFollowController {
   @ApiOperation({ summary: 'Unfollow an organization' })
   @ApiOkResponse({ description: 'Successfully unfollowed the organization.' })
   @ApiNotFoundResponse({
-    description: 'User does not follow this organization or organization not found.',
+    description:
+      'User does not follow this organization or organization not found.',
   })
+
+  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @Delete(':id/follow')
   @HttpCode(HttpStatus.OK)
   unfollow(
@@ -63,6 +71,7 @@ export class OrganizationFollowController {
     description: 'Returns a list of followers.',
     type: [DisplayUserDto],
   })
+  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @Get(':id/followers')
   getFollowers(

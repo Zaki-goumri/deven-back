@@ -17,6 +17,7 @@ import {
   ApiOkResponse,
   ApiNotFoundResponse,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 import { OrganizationService } from '../services/organization.service';
 import { CreateOrganizationDto } from '../dtos/create-organization.dto';
@@ -48,6 +49,7 @@ export class OrganizationController {
     description: 'Returns the organization.',
     type: Organization,
   })
+  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Organization> {
@@ -59,6 +61,7 @@ export class OrganizationController {
     description: 'The organization has been successfully updated.',
     type: Organization,
   })
+  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @Patch(':id')
   updateOne(
@@ -69,7 +72,9 @@ export class OrganizationController {
   }
 
   @ApiOperation({ summary: 'Delete an organization' })
-  @ApiOkResponse({ description: 'The organization has been successfully deleted.' })
+  @ApiOkResponse({
+    description: 'The organization has been successfully deleted.',
+  })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
