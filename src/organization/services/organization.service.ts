@@ -117,7 +117,8 @@ export class OrganizationService {
   async addModerators({ usersIds }: AddModeratorDto, orgId: number) {
     await this.organizationRepo
       .createQueryBuilder('org')
-      .relation('org.moderators')
+
+      .relation(Organization, 'moderators')
       .of(orgId)
       .add(usersIds);
 
@@ -126,7 +127,7 @@ export class OrganizationService {
   async removeModerators(userId: number, orgId: number) {
     await this.organizationRepo
       .createQueryBuilder('org')
-      .relation('org.moderators')
+      .relation(Organization, 'moderators')
       .of(orgId)
       .remove(userId);
     return;
@@ -135,37 +136,24 @@ export class OrganizationService {
     orgId: number,
     { lastId, take }: PaginationQueryDto,
   ): Promise<PaginationDtoRes<DisplayUserDto>> {
-    const org = await this.organizationRepo.findOne({
-      where: {
-        id: orgId,
-        moderators: {
-          id: Between(lastId, lastId + take - 1),
-        },
-      },
-      order: {
-        moderators: {
-          id: 'ASC',
-        },
-      },
-      relations: {
-        moderators: {
-          info: true,
-        },
-      },
-      select: {
-        moderators: UserService.getDisplayUserInclude(),
-        id: true,
-      },
-    });
-    if (!org) {
-      throw new NotFoundException('Organization not found');
-    }
+    const moderators = await this.organizationRepo
+      .createQueryBuilder('org')
+      .innerJoinAndSelect('org.moderators', 'moderator')
+      .leftJoinAndSelect('moderator.info', 'info')
+      .where('org.id = :orgId', { orgId })
+      .andWhere('moderator.id >= :lastId', { lastId })
+      .orderBy('moderator.id', 'ASC')
+      .take(take)
+      .getOne();
+
+    const moderatorsList = moderators?.moderators || [];
+
     return {
       take,
-      lastId: org.moderators[org.moderators.length - 1]?.id || lastId,
-      data: org.moderators,
+      lastId: moderatorsList[moderatorsList.length - 1]?.id || lastId,
+      data: moderatorsList,
       success: true,
-      hasMore: org.moderators.length < take,
+      hasMore: moderatorsList.length === take, // If we got exactly 'take' items, there might be more
     };
   }
   async getUserRoles(

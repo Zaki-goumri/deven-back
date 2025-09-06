@@ -41,11 +41,11 @@ export class OrganizationFollowController {
     description: 'User already follows this organization.',
   })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
-  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
-  @Post(':id/follow')
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
+  @Post(':orgId/follow')
   @HttpCode(HttpStatus.OK)
   follow(
-    @Param('id', ParseIntPipe) orgId: number,
+    @Param('orgId', ParseIntPipe) orgId: number,
     @USER('id') userId: number,
   ): Promise<void> {
     return this.organizationFollowService.follow(orgId, userId);
@@ -57,11 +57,11 @@ export class OrganizationFollowController {
     description:
       'User does not follow this organization or organization not found.',
   })
-  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
-  @Delete(':id/follow')
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
+  @Delete(':orgId/follow')
   @HttpCode(HttpStatus.OK)
   unfollow(
-    @Param('id', ParseIntPipe) orgId: number,
+    @Param('orgId', ParseIntPipe) orgId: number,
     @USER('id') userId: number,
   ): Promise<void> {
     return this.organizationFollowService.unfollow(orgId, userId);
@@ -72,11 +72,11 @@ export class OrganizationFollowController {
     description: 'Returns a list of followers.',
     type: PaginationDtoResEnhanced(DisplayUserDto),
   })
-  @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
-  @Get(':id/followers')
+  @Get(':orgId/followers')
   getFollowers(
-    @Param('id', ParseIntPipe) orgId: number,
+    @Param('orgId', ParseIntPipe) orgId: number,
     @Query() paginationDto: PaginationQueryDto,
   ): Promise<PaginationDtoRes<DisplayUserDto>> {
     return this.organizationFollowService.getFollowers(orgId, paginationDto);

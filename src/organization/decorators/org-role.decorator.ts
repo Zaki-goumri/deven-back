@@ -6,5 +6,5 @@ export const OrganizationRole = {
 };
 export type OrganizationRoleType = keyof typeof OrganizationRole;
 export const ORG_ROLE_KEY = 'orgRole';
-export const orgRole = (...roles: OrganizationRoleType[]) =>
+export const OrgRole = (...roles: OrganizationRoleType[]) =>
   SetMetadata(ORG_ROLE_KEY, roles);

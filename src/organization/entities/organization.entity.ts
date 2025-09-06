@@ -8,6 +8,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -48,8 +49,7 @@ export class Organization {
   @ApiProperty({
     description: 'id of the owner',
   })
-  //TODO: are we sure this is a one to one ?can't the user have multiple organizations
-  @OneToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'ownerId' })
   Owner: Relation<User>;
   @ApiProperty({
@@ -95,6 +95,14 @@ export class Organization {
   @ManyToMany(() => User, (user) => user.moderatedOrganizations, {
     cascade: true,
   })
-  @JoinTable()
+  @JoinTable({
+    name: 'organization_moderators',
+    joinColumn: {
+      name: 'organizationId',
+    },
+    inverseJoinColumn: {
+      name: 'moderatorId',
+    },
+  })
   moderators: Relation<User>[];
 }
