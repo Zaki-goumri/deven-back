@@ -105,11 +105,12 @@ export class OrganizationController {
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @OrgRole('MODERATOR')
   @Post('moderators/:orgId')
-  addModerator(
+  async addModerator(
     @Param('orgId', ParseIntPipe) orgId: number,
     @Body() body: AddModeratorDto,
   ) {
-    return this.organizationService.addModerators(body, orgId);
+    await this.organizationService.addModerators(body, orgId);
+    return { message: 'Moderators have been successfully added.' };
   }
 
   @ApiOperation({ summary: 'Get moderators of an organization' })
