@@ -48,7 +48,7 @@ export class Organization {
   @ApiProperty({
     description: 'id of the owner',
   })
-  //TODO are we sure this is a one to one ?can't the user have multiple organizations
+  //TODO: are we sure this is a one to one ?can't the user have multiple organizations
   @OneToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'ownerId' })
   Owner: Relation<User>;
@@ -92,4 +92,9 @@ export class Organization {
     orphanedRowAction: 'delete',
   })
   link: OrganizationLink[];
+  @ManyToMany(() => User, (user) => user.moderatedOrganizations, {
+    cascade: true,
+  })
+  @JoinTable()
+  moderators: Relation<User>[];
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, MoreThan, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
 import {
   ConflictException,
@@ -10,7 +10,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DisplayUserDto } from 'src/user/dto/display-user.dto';
-import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
+import {
+  PaginationDtoRes,
+  PaginationQueryDto,
+} from 'src/common/dtos/pagination.dto';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -71,7 +74,7 @@ export class OrganizationFollowService {
   async getFollowers(
     orgId: number,
     { lastId, take }: PaginationQueryDto,
-  ): Promise<DisplayUserDto[]> {
+  ): Promise<PaginationDtoRes<DisplayUserDto>> {
     const qb = this.orgRepo
       .createQueryBuilder('org')
       .leftJoin('org.followers', 'follower')
@@ -94,7 +97,16 @@ export class OrganizationFollowService {
     if (!followersRaw) {
       throw new NotFoundException(`Organization with ID ${orgId} not found`);
     }
-    return followersRaw.map((follower) => this.mapToDisplayUserDto(follower));
+    const data = followersRaw.map((follower) =>
+      this.mapToDisplayUserDto(follower),
+    );
+    return {
+      data,
+      lastId: data[-1].id || lastId,
+      hasMore: data.length < take,
+      take,
+      success: true,
+    };
   }
   private mapToDisplayUserDto(user: any): DisplayUserDto {
     const mapToDisplayUserDto = (row: any): DisplayUserDto => ({

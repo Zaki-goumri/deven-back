@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { OrganizationFollowService } from '../services/organization_follow.service';
 import { USER } from 'src/authentication/decorators/user.decorartor';
-import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDtoRes, PaginationDtoResEnhanced, PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 import { Organization } from '../entities/organization.entity';
 import { DisplayUserDto } from 'src/user/dto/display-user.dto';
 import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
@@ -29,7 +29,6 @@ import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 @ApiBearerAuth()
 @ApiTags('Organization Follow')
 @Controller('organization')
-
 @UseGuards(AccessTokenGuard)
 export class OrganizationFollowController {
   constructor(
@@ -42,7 +41,6 @@ export class OrganizationFollowController {
     description: 'User already follows this organization.',
   })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
-
   @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @Post(':id/follow')
   @HttpCode(HttpStatus.OK)
@@ -59,7 +57,6 @@ export class OrganizationFollowController {
     description:
       'User does not follow this organization or organization not found.',
   })
-
   @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @Delete(':id/follow')
   @HttpCode(HttpStatus.OK)
@@ -73,7 +70,7 @@ export class OrganizationFollowController {
   @ApiOperation({ summary: "Get an organization's followers" })
   @ApiOkResponse({
     description: 'Returns a list of followers.',
-    type: [DisplayUserDto],
+    type: PaginationDtoResEnhanced(DisplayUserDto),
   })
   @ApiParam({ name: 'id', type: Number, description: 'Organization ID' })
   @ApiNotFoundResponse({ description: 'Organization not found.' })
@@ -81,7 +78,7 @@ export class OrganizationFollowController {
   getFollowers(
     @Param('id', ParseIntPipe) orgId: number,
     @Query() paginationDto: PaginationQueryDto,
-  ): Promise<DisplayUserDto[]> {
+  ): Promise<PaginationDtoRes<DisplayUserDto>> {
     return this.organizationFollowService.getFollowers(orgId, paginationDto);
   }
 

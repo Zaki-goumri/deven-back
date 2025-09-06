@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,6 +27,12 @@ import { UpdateOrganizationDto } from '../dtos/update-organization.dto';
 import { USER } from 'src/authentication/decorators/user.decorartor';
 import { Organization } from '../entities/organization.entity';
 import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
+import { AddModeratorDto } from '../dtos/add-moderator.dto';
+import {
+  PaginationDtoRes,
+  PaginationQueryDto,
+} from 'src/common/dtos/pagination.dto';
+import { DisplayUserDto } from 'src/user/dto/display-user.dto';
 
 @ApiBearerAuth()
 @ApiTags('Organization')
@@ -39,6 +46,7 @@ export class OrganizationController {
     description: 'The organization has been successfully created.',
     type: Organization,
   })
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   create(
     @Body() createOrganizationDto: CreateOrganizationDto,
@@ -81,7 +89,56 @@ export class OrganizationController {
   @ApiNotFoundResponse({ description: 'Organization not found.' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.organizationService.delete(id);
+  }
+  @ApiOperation({ summary: 'Add moderators to an organization' })
+  @ApiOkResponse({
+    description: 'Moderators have been successfully added.',
+    type: Organization,
+  })
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
+  @ApiNotFoundResponse({ description: 'Organization not found.' })
+  @Post('moderators/:orgId')
+  addModerator(
+    @Param('orgId', ParseIntPipe) orgId: number,
+    @Body() body: AddModeratorDto,
+  ) {
+    return this.organizationService.addModerators(body, orgId);
+  }
+
+  @ApiOperation({ summary: 'Get moderators of an organization' })
+  @ApiOkResponse({
+    description: 'Returns a paginated list of moderators.',
+    type: [DisplayUserDto],
+  })
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
+  @ApiNotFoundResponse({ description: 'Organization not found.' })
+  @Get('moderators/:orgId')
+  getModerators(
+    @Param('orgId', ParseIntPipe) orgId: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ): Promise<PaginationDtoRes<DisplayUserDto>> {
+    return this.organizationService.getOrgModerators(orgId, paginationQuery);
+  }
+
+  @ApiOperation({ summary: 'Remove a moderator from an organization' })
+  @ApiOkResponse({
+    description: 'Moderator has been successfully removed.',
+  })
+  @ApiParam({ name: 'orgId', type: Number, description: 'Organization ID' })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'User ID of the moderator to remove',
+  })
+  @ApiNotFoundResponse({ description: 'Organization or Moderator not found.' })
+  @Delete('moderators/:orgId/:userId')
+  async removeModerator(
+    @Param('orgId', ParseIntPipe) orgId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<{ message: string }> {
+    await this.organizationService.removeModerators(userId, orgId);
+    return { message: 'Moderator has been successfully removed.' };
   }
 }
