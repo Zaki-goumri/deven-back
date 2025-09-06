@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Between, DataSource, FindOptionsSelect, Repository } from 'typeorm';
+import { DataSource, FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from '../entities/organization.entity';
 import { OrganizationLink } from '../entities/org_link.entity';
@@ -136,7 +136,7 @@ export class OrganizationService {
     orgId: number,
     { lastId, take }: PaginationQueryDto,
   ): Promise<PaginationDtoRes<DisplayUserDto>> {
-    const moderators = await this.organizationRepo
+    const org = await this.organizationRepo
       .createQueryBuilder('org')
       .innerJoinAndSelect('org.moderators', 'moderator')
       .leftJoinAndSelect('moderator.info', 'info')
@@ -145,8 +145,11 @@ export class OrganizationService {
       .orderBy('moderator.id', 'ASC')
       .take(take)
       .getOne();
+    if (!org) {
+      throw new NotFoundException('Organization not found');
+    }
 
-    const moderatorsList = moderators?.moderators || [];
+    const moderatorsList = org.moderators;
 
     return {
       take,
