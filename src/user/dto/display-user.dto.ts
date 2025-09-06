@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { UserInfo } from '../entities/userInfo.entity';
 
 /**
  * Data Transfer Object for displaying user information.
@@ -14,6 +15,7 @@ export class DisplayUserDto {
   @ApiProperty({
     example: { firstName: 'John', lastName: 'Doe' },
     description: 'Basic information about the user',
+    type: PickType(UserInfo, ['firstName', 'lastName']),
   })
   info: {
     firstName: string;

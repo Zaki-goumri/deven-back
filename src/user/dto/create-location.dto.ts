@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
 
 export class CreateLocationDto {
   @ApiProperty({
@@ -22,6 +22,8 @@ export class CreateLocationDto {
     description: 'The Google Maps link of the location',
     example: 'https://maps.app.goo.gl/xxxxxxxxxxxx',
   })
+  @IsString()
+  @IsNotEmpty()
   @IsUrl()
   mapsLink: string;
 }

@@ -110,4 +110,8 @@ export class User {
   info: Relation<UserInfo>;
   @ManyToMany(() => Organization, (organization) => organization.followers)
   followedOrganizations: Relation<Organization>[];
+
+  @ManyToMany(() => Organization, (organization) => organization.moderators, {
+  })
+  moderatedOrganizations: Relation<Organization>[];
 }

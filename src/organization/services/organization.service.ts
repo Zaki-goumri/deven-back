@@ -6,6 +6,12 @@ import { OrganizationLink } from '../entities/org_link.entity';
 import { CreateOrganizationDto } from '../dtos/create-organization.dto';
 import { UpdateOrganizationDto } from '../dtos/update-organization.dto';
 import { UserService } from 'src/user/user.service';
+import { DisplayUserDto } from 'src/user/dto/display-user.dto';
+import {
+  PaginationDtoRes,
+  PaginationQueryDto,
+} from 'src/common/dtos/pagination.dto';
+import { AddModeratorDto } from '../dtos/add-moderator.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -16,6 +22,7 @@ export class OrganizationService {
     private readonly linkRepo: Repository<OrganizationLink>,
     private readonly dataSource: DataSource,
   ) {}
+
   create(data: CreateOrganizationDto, userId: number): Promise<Organization> {
     const newOrg = this.organizationRepo.create({
       ...data,
@@ -77,6 +84,13 @@ export class OrganizationService {
     await queryRunner.release();
     return org;
   }
+  async delete(id: number): Promise<void> {
+    const result = await this.organizationRepo.delete({ id });
+    if (result.affected === 0) {
+      throw new NotFoundException('Organization not found');
+    }
+    return;
+  }
   async findOne(id: number): Promise<Organization> {
     const org = await this.organizationRepo.findOne({
       where: { id },
@@ -94,19 +108,75 @@ export class OrganizationService {
         Owner: UserService.getDisplayUserInclude(),
       },
     });
+
     if (!org) {
       throw new NotFoundException('Organization not found');
     }
     return org;
   }
+  async addModerators({ usersIds }: AddModeratorDto, orgId: number) {
+    await this.organizationRepo
+      .createQueryBuilder('org')
 
-  async delete(id: number): Promise<boolean> {
-    const res = await this.organizationRepo.softDelete({ id });
-    if (res.affected == 0) {
+      .relation(Organization, 'moderators')
+      .of(orgId)
+      .add(usersIds);
+
+    return;
+  }
+  async removeModerators(userId: number, orgId: number) {
+    await this.organizationRepo
+      .createQueryBuilder('org')
+      .relation(Organization, 'moderators')
+      .of(orgId)
+      .remove(userId);
+    return;
+  }
+  async getOrgModerators(
+    orgId: number,
+    { lastId, take }: PaginationQueryDto,
+  ): Promise<PaginationDtoRes<DisplayUserDto>> {
+    const org = await this.organizationRepo
+      .createQueryBuilder('org')
+      .innerJoinAndSelect('org.moderators', 'moderator')
+      .leftJoinAndSelect('moderator.info', 'info')
+      .where('org.id = :orgId', { orgId })
+      .andWhere('moderator.id >= :lastId', { lastId })
+      .orderBy('moderator.id', 'ASC')
+      .take(take)
+      .getOne();
+    if (!org) {
       throw new NotFoundException('Organization not found');
     }
-    return true;
+
+    const moderatorsList = org.moderators;
+
+    return {
+      take,
+      lastId: moderatorsList[moderatorsList.length - 1]?.id || lastId,
+      data: moderatorsList,
+      success: true,
+      hasMore: moderatorsList.length === take, // If we got exactly 'take' items, there might be more
+    };
   }
+  async getUserRoles(
+    orgId: number,
+    userId: number,
+  ): Promise<{ isMod: boolean; isOwner: boolean }> {
+    const organization = await this.organizationRepo.findOne({
+      where: { id: orgId },
+      relations: { Owner: true, moderators: true },
+      select: { id: true, Owner: { id: true }, moderators: { id: true } },
+    });
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+    return {
+      isMod: organization.moderators.some((mod) => mod.id === userId),
+      isOwner: organization.Owner.id === userId,
+    };
+  }
+
   static getOragnizationSelect(): FindOptionsSelect<Organization> {
     return {
       id: true,
@@ -116,7 +186,6 @@ export class OrganizationService {
       location: true,
       link: true,
       university: true,
-
       createdAt: true,
       updatedAt: true,
     };
