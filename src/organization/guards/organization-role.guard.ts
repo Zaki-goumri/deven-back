@@ -8,7 +8,7 @@ import {
 } from '../decorators/org-role.decorator';
 
 @Injectable()
-export class OrganizationModGuard implements CanActivate {
+export class OrganizationRoleGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly organizationService: OrganizationService,
@@ -31,12 +31,21 @@ export class OrganizationModGuard implements CanActivate {
       orgId,
       userId,
     );
+    return this.checkOveralapRoles(allowedRoles, isMod, isOwner);
+  }
+  // Helper method to check role overlap
+  // In case we need later to add more complex role overlap check
+  checkOveralapRoles(
+    allowedRoles: OrganizationRoleType[],
+    isMod: boolean,
+    isOwner: boolean,
+  ): boolean {
     if (isOwner) {
       return true; // Owners have full access
     }
     if (isMod) {
       return allowedRoles.includes('MODERATOR'); // Mods have access if 'mod' role is allowed
     }
-    return false; // Deny access by default
+    return false; // Deny access by default}
   }
 }
