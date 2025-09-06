@@ -9,9 +9,12 @@ import {
   OneToOne,
   Index,
   Relation,
+  ManyToMany,
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
+import { Organization } from 'src/organization/entities/organization.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 @Index(['username'], { unique: true })
@@ -53,6 +56,7 @@ export class User {
     example: '$2b$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     required: false,
   })
+  @Exclude()
   @Column({ type: 'varchar', length: 255, nullable: true })
   // Hashed password,[nullable for OAuth users]
   password: string | null;
@@ -101,7 +105,9 @@ export class User {
     description: 'The user info associated with the user',
     type: () => UserInfo,
   })
-  @OneToOne(() => UserInfo)
+  @OneToOne(() => UserInfo, { cascade: true, eager: true, nullable: true })
   @JoinColumn({ name: 'infoId' }) // Specify the column name
   info: Relation<UserInfo>;
+  @ManyToMany(() => Organization, (organization) => organization.followers)
+  followedOrganizations: Relation<Organization>[];
 }

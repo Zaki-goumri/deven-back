@@ -118,7 +118,14 @@ export class AuthenticationService {
   async issueTokens(user: User): Promise<AuthResponseDto> {
     try {
       const { id, email } = user;
-      const accessTokenPayload: AccessTokenPayload = { sub: id, user: user };
+      const accessTokenPayload: AccessTokenPayload = {
+        sub: id,
+        user: {
+          id: user.id,
+          email: user.email,
+          isEmailVerified: user.isEmailVerified,
+        },
+      };
       const refreshTokenPayload = { sub: id, email, type: 'refresh' };
 
       const jwtConfig = this.configService.get<AuthConfig['jwt']>('auth.jwt')!;

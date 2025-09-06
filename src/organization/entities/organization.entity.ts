@@ -8,69 +8,67 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
+import { OrganizationLink } from './org_link.entity';
 
 @Entity()
 export class Organization {
   @ApiProperty({
-    name: 'organization id ',
     description: 'a unique id for each organization',
   })
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id: number;
   @ApiProperty({
-    name: 'Organization name',
     description: 'name of the organization',
   })
-  @Column({ type: 'varchar', unique: true, length: 20 })
+  @Column({ type: 'varchar', unique: true, length: 40 })
   name: string;
   @ApiProperty({
-    name: 'description of organization',
     description: 'a description of a bio for the organization',
   })
   @Column({ type: 'varchar', length: 1000 })
   description: string;
   @ApiProperty({
-    name: 'isVerified',
     description:
       'check if is it a verified organization or not by sending an attchements to admin',
   })
   @Column({ type: 'boolean', default: false })
   isVerified: boolean;
   @ApiProperty({
-    name: 'id of location',
     description: 'id of location record in location table',
   })
-  @OneToOne(() => Location, { nullable: false })
+  @OneToOne(() => Location, { nullable: false, cascade: true })
   @JoinColumn({ name: 'locationId' })
   location: Location;
   @ApiProperty({
-    name: 'owner id',
     description: 'id of the owner',
   })
+  //TODO are we sure this is a one to one ?can't the user have multiple organizations
   @OneToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'ownerId' })
-  Owner: User;
+  Owner: Relation<User>;
   @ApiProperty({
-    name: 'creator id',
     description: 'id of creator in user table',
   })
   @OneToOne(() => User, { nullable: true }) //user deleted we can remove the colum not too neccessary
   @JoinColumn({ name: 'createdBy' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ApiProperty({
-    name: 'creation time',
+    description: 'The University to which the club is associated',
+    required: false,
   })
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  university: string | null;
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @ApiProperty({
-    name: 'last updating time',
-  })
+  @ApiProperty({})
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
@@ -78,7 +76,7 @@ export class Organization {
   //cover page
 
   //create a join table for followers
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.followedOrganizations)
   @JoinTable({
     name: 'organization_followers',
     joinColumn: {
@@ -88,5 +86,10 @@ export class Organization {
       name: 'followerId',
     },
   })
-  followers: User[];
+  followers: Relation<User>[];
+  @OneToMany(() => OrganizationLink, (link) => link.organization, {
+    cascade: true,
+    orphanedRowAction: 'delete',
+  })
+  link: OrganizationLink[];
 }
