@@ -3,8 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import * as cloudinary from 'cloudinary';
 import { Readable } from 'stream';
 
+import 'multer';
 interface UploadingOptions {
-  year: number;
+  uploadType:
+    | 'USER'
+    | 'ORGANIZATION'
+    | 'HACKATHON'
+    | 'PROVIDER'
+    | 'SUBMISSION'
+    | 'OTHER';
 }
 
 @Injectable()
@@ -21,14 +28,14 @@ export class CloudinaryService {
   }
 
   async uploadImage(
-    fileBase64: string,
+    file: Express.Multer.File,
     options: UploadingOptions,
   ): Promise<cloudinary.UploadApiResponse> {
     try {
-      const fileBuffer = Buffer.from(fileBase64, 'base64');
-      const folder = options.year.toString();
+      const time = Date.now();
+      const folder = `${options.uploadType.toLowerCase()}s/${time}/`;
       // Create a readable stream from the file buffer
-      const stream = Readable.from(fileBuffer);
+      const stream = Readable.from(file.buffer);
 
       this.logger.log('Upload to cloudinary');
       // Return a promise to handle the upload_stream result
@@ -36,7 +43,10 @@ export class CloudinaryService {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
           {
             folder: folder || undefined,
+
             resource_type: 'auto', // Automatically detect file type (image, video, etc.)
+            //NOTE:Important to not block other uploads
+            async: true,
           },
           (
             error: cloudinary.UploadApiErrorResponse | undefined,
@@ -44,7 +54,7 @@ export class CloudinaryService {
           ) => {
             if (error) {
               this.logger.error(`Upload failed: ${error.message}`, error.stack);
-              return reject(error);
+              return reject(Error(error.message));
             }
             if (!result) {
               this.logger.error('Upload failed: No result returned');
@@ -59,7 +69,8 @@ export class CloudinaryService {
         stream.pipe(uploadStream);
       });
     } catch (e) {
-      this.logger.error(`Upload failed: ${e.message}`, e.stack);
+      //TODO add better error handling
+      this.logger.error(`Upload failed: ${e}`);
       throw e;
     }
   }
