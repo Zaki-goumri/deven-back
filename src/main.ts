@@ -11,6 +11,7 @@ import { doubleCsrf, DoubleCsrfConfigOptions } from 'csrf-csrf';
 import { AppModule } from './app.module';
 import { LoggerInterceptor } from './global/interceptors/logger.interceptor';
 import { ExtendedRequest } from './authentication/types/extended-req.type';
+import { GlobalExceptionFilter } from './global/exception-filters/db.filter';
 async function bootstrap() {
   // the cors will be changed to the front end url  in production environnement
   const app = await NestFactory.create(AppModule, {
@@ -62,6 +63,9 @@ async function bootstrap() {
   //  app.use(doubleCsrfProtection);
   //
   app.useGlobalInterceptors(new LoggerInterceptor());
+
+  //filter for handle db exceptions
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
       strategy: 'exposeAll',
