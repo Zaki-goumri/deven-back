@@ -10,7 +10,7 @@ import {
   OneToOne,
   Relation,
 } from 'typeorm';
-import { Location } from 'src/common/entities/location.entity';
+import { Location } from '../../common/entities/location.entity';
 import { User } from './user.entity';
 
 @Entity('user_infos')
