@@ -7,6 +7,7 @@ import { OrganizationFollowService } from './services/organization_follow.servic
 import { UserModule } from 'src/user/user.module';
 import { OrganizationController } from './controllers/organization.controller';
 import { OrganizationFollowController } from './controllers/organization-follow.controller';
+import { OrganizationRoleGuard } from './guards/organization-role.guard';
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import { OrganizationFollowController } from './controllers/organization-follow.
     UserModule,
   ],
   controllers: [OrganizationController, OrganizationFollowController],
-  providers: [OrganizationService, OrganizationFollowService],
+  providers: [
+    OrganizationService,
+    OrganizationFollowService,
+    OrganizationRoleGuard,
+  ],
 })
 export class OrganizationModule {}
