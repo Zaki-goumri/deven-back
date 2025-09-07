@@ -100,10 +100,11 @@ export class OrganizationFollowService {
     const data = followersRaw.map((follower) =>
       this.mapToDisplayUserDto(follower),
     );
+    //TODO: we need to add a constructor to the paginationDtoRes to avoid ry
     return {
       data,
-      lastId: data[-1].id || lastId,
-      hasMore: data.length < take,
+      lastId: data[data.length - 1].id || lastId,
+      hasMore: data.length == take,
       take,
       success: true,
     };
