@@ -44,7 +44,8 @@ export class CloudinaryService {
       //NOTE: this is an issue with multer and cloudinary sdk types ignore it for now
       const buffer = Buffer.isBuffer(file.buffer)
         ? file.buffer
-        : Buffer.from(file.buffer.data);
+        : // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          Buffer.from((file.buffer as any).data);
       const stream = Readable.from([buffer]);
       this.logger.log(
         'Starting upload to Cloudinary...' + stream.readableLength,
