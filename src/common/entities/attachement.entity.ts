@@ -20,7 +20,7 @@ export const ATTACHMENT_UPLOAD_STATUS = {
 export type AttachmentUploadStatus =
   (typeof ATTACHMENT_UPLOAD_STATUS)[keyof typeof ATTACHMENT_UPLOAD_STATUS];
 
-@Entity({ name: 'attachements' })
+@Entity({ name: 'attachments' })
 export class Attachment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
