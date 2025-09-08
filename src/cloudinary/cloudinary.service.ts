@@ -56,8 +56,6 @@ export class CloudinaryService {
             folder: folder || undefined,
 
             resource_type: 'auto', // Automatically detect file type (image, video, etc.)
-            //NOTE:Important to not block other uploads
-            async: true,
           },
           (
             error: cloudinary.UploadApiErrorResponse | undefined,
@@ -71,7 +69,6 @@ export class CloudinaryService {
               this.logger.error('Upload failed: No result returned');
               return reject(new Error('No result returned from Cloudinary'));
             }
-            this.logger.log(`Upload successful: ${JSON.stringify(result)}`);
             resolve(result);
           },
         );
