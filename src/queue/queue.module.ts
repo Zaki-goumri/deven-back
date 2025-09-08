@@ -7,10 +7,14 @@ import { EmailModule } from 'src/email/email.module';
 import redisConfig from 'src/config/redis.config';
 import { AttachmentsProcessor } from './attachements/attachements.process';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Attachment } from 'src/common/entities/attachement.entity';
+import { AttachmentEventListener } from './attachements/attachement.event-listener';
 
 @Global()
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Attachment]),
     ConfigModule.forFeature(redisConfig),
     EmailModule,
     CloudinaryModule,
@@ -39,6 +43,6 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
   ],
 
   exports: [BullModule],
-  providers: [MailProcessor, AttachmentsProcessor],
+  providers: [MailProcessor, AttachmentsProcessor,AttachmentEventListener],
 })
 export class QueueModule {}

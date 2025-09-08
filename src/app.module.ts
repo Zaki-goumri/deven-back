@@ -26,12 +26,22 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import redisConfig from './config/redis.config';
+import cloudConfig from './config/cloud.config';
+import { Attachment } from './common/entities/attachement.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Attachment]),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, mailConfig, authConfig, redisConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        mailConfig,
+        authConfig,
+        redisConfig,
+        cloudConfig,
+      ],
       envFilePath: `.env`,
       expandVariables: true,
     }),

@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import * as cloudinary from 'cloudinary';
 import { Readable } from 'stream';
 
 import 'multer';
-interface UploadingOptions {
+import cloudConfig from 'src/config/cloud.config';
+export interface UploadingOptions {
   uploadType:
     | 'USER'
     | 'ORGANIZATION'
@@ -18,26 +19,36 @@ interface UploadingOptions {
 export class CloudinaryService {
   private readonly logger = new Logger(CloudinaryService.name);
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    @Inject(cloudConfig.KEY)
+    private readonly cloudConfiguration: ConfigType<typeof cloudConfig>,
+  ) {
     // Configure Cloudinary with credentials from environment variables
+    // TODO: refactor this into new config style
     cloudinary.v2.config({
-      cloud_name: this.configService.get<string>('cloudinary.cloudName'),
-      api_key: this.configService.get<string>('cloudinary.apiKey'),
-      api_secret: this.configService.get<string>('cloudinary.apiSecret'),
+      cloud_name: this.cloudConfiguration.cloudName,
+      api_key: this.cloudConfiguration.apiKey,
+
+      api_secret: this.cloudConfiguration.apiSecret,
     });
   }
 
-  async uploadImage(
+  async uploadFile(
     file: Express.Multer.File,
     options: UploadingOptions,
   ): Promise<cloudinary.UploadApiResponse> {
     try {
-      const time = Date.now();
+      const time = new Date().getFullYear();
       const folder = `${options.uploadType.toLowerCase()}s/${time}/`;
-      // Create a readable stream from the file buffer
-      const stream = Readable.from(file.buffer);
 
-      this.logger.log('Upload to cloudinary');
+      //NOTE: this is an issue with multer and cloudinary sdk types ignore it for now
+      const buffer = Buffer.isBuffer(file.buffer)
+        ? file.buffer
+        : Buffer.from(file.buffer.data);
+      const stream = Readable.from([buffer]);
+      this.logger.log(
+        'Starting upload to Cloudinary...' + stream.readableLength,
+      );
       // Return a promise to handle the upload_stream result
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
