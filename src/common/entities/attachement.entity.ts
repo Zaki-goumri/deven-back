@@ -41,9 +41,9 @@ export class Attachment {
   filename: string;
   @Column()
   size: number;
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Column({ type: 'text', nullable: true })
   errorMessage?: string;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
   @Column({
     type: 'timestamp',
