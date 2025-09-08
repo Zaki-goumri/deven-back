@@ -43,6 +43,6 @@ import { AttachmentEventListener } from './attachements/attachement.event-listen
   ],
 
   exports: [BullModule],
-  providers: [MailProcessor, AttachmentsProcessor,AttachmentEventListener],
+  providers: [MailProcessor, AttachmentsProcessor, AttachmentEventListener],
 })
 export class QueueModule {}
