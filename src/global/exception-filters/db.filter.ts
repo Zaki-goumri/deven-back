@@ -2,7 +2,6 @@ import {
   ExceptionFilter,
   Catch,
   ArgumentsHost,
-  HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
@@ -13,11 +12,27 @@ import {
   isPostgresError,
 } from '../../common/constants/db-code';
 
-@Catch()
-export class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(GlobalExceptionFilter.name);
+interface PostgresDriverError {
+  code?: string;
+  detail?: string;
+  column?: string;
+  constraint?: string;
+}
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+interface DatabaseErrorResult {
+  status: number;
+  message: string;
+  error: string;
+}
+
+@Catch(QueryFailedError, EntityNotFoundError)
+export class DatabaseExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(DatabaseExceptionFilter.name);
+
+  catch(
+    exception: QueryFailedError | EntityNotFoundError,
+    host: ArgumentsHost,
+  ): void {
     if (host.getType() !== 'http') {
       return;
     }
@@ -26,86 +41,57 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status: number;
-    let message: string | string[];
-    let error: string;
+    const errorResult = this.handleException(exception);
 
-    if (exception instanceof HttpException) {
-      status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
+    this.logError(exception, request, errorResult.status);
 
-      if (typeof exceptionResponse === 'string') {
-        message = exceptionResponse;
-        error = exception.name;
-      } else {
-        const body = exceptionResponse as { message?: string | string[]; error?: string };
-        message = body?.message ?? exception.message;
-        error = body?.error ?? exception.name;
-      }
-    } else if (exception instanceof QueryFailedError) {
-      const {
-        status: dbStatus,
-        message: dbMessage,
-        error: dbError,
-      } = this.handleDatabaseError(exception);
-      status = dbStatus;
-      message = dbMessage;
-      error = dbError;
-    } else if (exception instanceof EntityNotFoundError) {
-      status = HttpStatus.NOT_FOUND;
-      message = 'Resource not found';
-      error = 'Not Found';
-    } else {
-      status = HttpStatus.INTERNAL_SERVER_ERROR;
-      message = 'Internal server error';
-      error = 'Internal Server Error';
-    }
-
-    this.logError(exception, request, status);
-
-    const errorResponse: {
-      statusCode: number;
-      timestamp: string;
-      path: string;
-      method: string;
-      error: string;
-      message: string | string[];
-      // stack is added in non-prod for visibility
-      stack?: string;
-    } = {
-      statusCode: status,
+    const errorResponse = {
+      statusCode: errorResult.status,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      error,
-      message,
+      error: errorResult.error,
+      message: errorResult.message,
+      ...(this.shouldIncludeStack() &&
+        exception instanceof Error && {
+          stack: exception.stack,
+        }),
     };
 
-    if (process.env.NODE_ENV === 'production') {
-      if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-        errorResponse.message = 'Internal server error';
-      }
-    } else if (exception instanceof Error) {
-      errorResponse.stack = exception.stack;
-    }
-
-    response.status(status).json(errorResponse);
+    response.status(errorResult.status).json(errorResponse);
   }
 
-  private handleDatabaseError(error: QueryFailedError): {
-    status: number;
-    message: string;
-    error: string;
-  } {
-    type PostgresDriverError = { code?: string; detail?: string; column?: string; constraint?: string };
-    const driverError: PostgresDriverError = (error as unknown as { driverError?: PostgresDriverError }).driverError ?? (error as unknown as PostgresDriverError);
+  private handleException(
+    exception: QueryFailedError | EntityNotFoundError,
+  ): DatabaseErrorResult {
+    if (exception instanceof EntityNotFoundError) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: 'Resource not found',
+        error: 'Not Found',
+      };
+    }
+
+    if (exception instanceof QueryFailedError) {
+      return this.handleQueryFailedError(exception);
+    }
+
+    return {
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: 'Database error occurred',
+      error: 'Internal Server Error',
+    };
+  }
+
+  private handleQueryFailedError(error: QueryFailedError): DatabaseErrorResult {
+    const driverError = this.extractDriverError(error);
 
     if (driverError?.code && isPostgresError(driverError as unknown)) {
       switch (driverError.code) {
         case PostgresErrorCode.UNIQUE_VIOLATION:
           return {
             status: HttpStatus.CONFLICT,
-            message: this.extractUniqueViolationMessage(error),
+            message: this.extractUniqueViolationMessage(driverError),
             error: 'Conflict',
           };
 
@@ -119,7 +105,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         case PostgresErrorCode.NOT_NULL_VIOLATION:
           return {
             status: HttpStatus.BAD_REQUEST,
-            message: this.extractNotNullViolationMessage(error),
+            message: this.extractNotNullViolationMessage(driverError),
             error: 'Bad Request',
           };
 
@@ -153,10 +139,37 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
   }
 
-  private extractUniqueViolationMessage(error: QueryFailedError): string {
-    type PostgresDriverError = { detail?: string };
-    const driverError: PostgresDriverError = (error as unknown as { driverError?: PostgresDriverError }).driverError ?? (error as unknown as PostgresDriverError);
+  private extractDriverError(error: QueryFailedError): PostgresDriverError {
+    /*eslint-disable-next-line*/
+    return (error as any).driverError ?? (error as any);
+  }
+
+  private shouldIncludeStack(): boolean {
+    return process.env.NODE_ENV !== 'production';
+  }
+
+  private logError(
+    exception: QueryFailedError | EntityNotFoundError,
+    request: Request,
+    statusCode: number,
+  ): void {
+    const base = `${request.method} ${request.url} - ${statusCode}`;
+
+    if (statusCode >= 500) {
+      const stack = exception instanceof Error ? exception.stack : undefined;
+      this.logger.error(base, stack);
+    } else {
+      const detail =
+        exception instanceof Error ? exception.message : String(exception);
+      this.logger.warn(`${base} - ${detail}`);
+    }
+  }
+
+  private extractUniqueViolationMessage(
+    driverError: PostgresDriverError,
+  ): string {
     const detail = driverError?.detail;
+
     if (detail && typeof detail === 'string') {
       const match = detail.match(/Key \(([^)]+)\)=/);
       if (match && match[1]) {
@@ -164,29 +177,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         return `${field} already exists`;
       }
     }
+
     return 'Resource already exists';
   }
 
-  private extractNotNullViolationMessage(error: QueryFailedError): string {
-    type PostgresDriverError = { column?: string };
-    const driverError: PostgresDriverError = (error as unknown as { driverError?: PostgresDriverError }).driverError ?? (error as unknown as PostgresDriverError);
+  private extractNotNullViolationMessage(
+    driverError: PostgresDriverError,
+  ): string {
     const column = driverError?.column;
+
     if (column) {
       const fieldName = column.replace(/_/g, ' ');
       return `${fieldName} is required`;
     }
+
     return 'Required field is missing';
-  }
-
-  private logError(exception: unknown, request: Request, status: number): void {
-    const base = `${request.method} ${request.url} - ${status}`;
-
-    if (status >= 500) {
-      const stack = exception instanceof Error ? exception.stack : undefined;
-      this.logger.error(base, stack);
-    } else {
-      const detail = exception instanceof Error ? exception.message : String(exception);
-      this.logger.warn(`${base} - ${detail}`);
-    }
   }
 }

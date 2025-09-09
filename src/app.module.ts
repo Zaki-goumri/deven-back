@@ -26,6 +26,11 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import redisConfig from './config/redis.config';
+import { DatabaseExceptionFilter } from './global/exception-filters/db.filter';
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalExceptionFilter } from './global/exception-filters/logger.filter';
+import { RedisExceptionFilter } from './global/exception-filters/redis.filter';
+import { FiltersModule } from './global/exception-filters/filter.module';
 
 @Module({
   imports: [
@@ -50,9 +55,9 @@ import redisConfig from './config/redis.config';
     WhatsappModule,
     AchivenemntsModule,
     CloudinaryModule,
+    FiltersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-
