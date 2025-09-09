@@ -1,32 +1,36 @@
-
 export const users = [
   {
+    username: 'john',
     email: 'john.doe@example.com',
-    password: '$2a$10$5Z0p.V7f.v1m4a9j4E.p8e.3.N.p5.g.U.U.U.U.U.U.U',
+    password: 'Changeme123!',
     firstName: 'John',
     lastName: 'Doe',
   },
   {
+    username: 'jane',
     email: 'jane.doe@example.com',
-    password: '$2a$10$5Z0p.V7f.v1m4a9j4E.p8e.3.N.p5.g.U.U.U.U.U.U.U',
+    password: 'Changeme123!',
     firstName: 'Jane',
     lastName: 'Doe',
   },
   {
+    username: 'alice',
     email: 'alice@example.com',
-    password: '$2a$10$5Z0p.V7f.v1m4a9j4E.p8e.3.N.p5.g.U.U.U.U.U.U.U',
+    password: 'Changeme123!',
     firstName: 'Alice',
     lastName: 'Smith',
   },
   {
+    username: 'bob',
     email: 'bob@example.com',
-    password: '$2a$10$5Z0p.V7f.v1m4a9j4E.p8e.3.N.p5.g.U.U.U.U.U.U.U',
+    password: 'Changeme123!',
     firstName: 'Bob',
     lastName: 'Johnson',
   },
   {
+    username: 'charlie',
     email: 'charlie@example.com',
-    password: '$2a$10$5Z0p.V7f.v1m4a9j4E.p8e.3.N.p5.g.U.U.U.U.U.U.U',
+    password: 'Changeme123!',
     firstName: 'Charlie',
     lastName: 'Brown',
   },

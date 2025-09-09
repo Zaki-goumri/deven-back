@@ -4,6 +4,7 @@ import { User } from '../../../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { users } from './data/user.data';
 import { UserInfo } from '../../../user/entities/userInfo.entity';
+import { generateHash } from 'src/common/utils/authentication/bcrypt.utils';
 
 @Injectable()
 export class UserSeeder {
@@ -22,14 +23,13 @@ export class UserSeeder {
         firstName: userData.firstName,
         lastName: userData.lastName,
       });
-
+      const hashedPassword = await generateHash(userData.password);
       const user = this.userRepository.create({
         email: userData.email,
-        password: userData.password,
-        username: userData.email.split('@')[0],
+        username: userData.username,
+        password: hashedPassword,
         info: userInfo,
       });
-
       usersToCreate.push(user);
     }
 

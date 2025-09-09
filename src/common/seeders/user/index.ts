@@ -13,6 +13,6 @@ async function bootstrap() {
 }
 
 bootstrap().catch((error) => {
-  logger.error('Error seeding badges', error);
+  logger.error('Error seeding users', error);
   process.exit(1);
 });
