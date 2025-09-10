@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { UserProvider, UserProviderType } from '../types/use-provider.type';
 import { UserInfo } from './userInfo.entity';
-import { Organization } from 'src/organization/entities/organization.entity';
+import { Organization } from '../../organization/entities/organization.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')
