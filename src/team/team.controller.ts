@@ -11,7 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -29,6 +31,9 @@ import { Team } from './entities/team.entity';
 import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 import { USER } from 'src/authentication/decorators/user.decorartor';
 import { SWAGGER_DESC } from 'src/common/constants/swagger-docs';
+import { TeamMemberService } from './services/team-member.service';
+
+//NOTE: need to add types to swagger docs
 
 @ApiTags('Teams')
 @UseGuards(AccessTokenGuard)
@@ -48,7 +53,10 @@ import { SWAGGER_DESC } from 'src/common/constants/swagger-docs';
 })
 @Controller('teams')
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {}
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly teamMemberService: TeamMemberService,
+  ) {}
 
   @Post(':hackathonId')
   @ApiOperation({ summary: 'Create a new team in a hackathon' })
@@ -105,5 +113,56 @@ export class TeamController {
     @USER('id') userId: number,
   ) {
     return this.teamService.remove(id, userId);
+  }
+
+  // ─── TEAM MEMBER ACTIONS ─────────────────────────────
+
+  @Post('member/join/:code')
+  @ApiOperation({ summary: 'Join a team using invite code' })
+  @ApiOkResponse({
+    description: 'User joined the team',
+    schema: {
+      example: {
+        success: true,
+        message: 'User joined the team',
+        memberCount: 3,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid code, registration closed, or team is full',
+  })
+  @ApiNotFoundResponse({ description: 'Team not found' })
+  async join(@USER('id') userId: number, @Param('code') insertCode: string) {
+    return this.teamMemberService.join(userId, insertCode);
+  }
+
+  @Delete('member/:teamId/kick/:kickedId')
+  @ApiOperation({ summary: 'Kick a member from a team' })
+  @ApiOkResponse({ description: 'Member kicked successfully' })
+  @ApiBadRequestResponse({ description: 'Hackathon started or self-kick' })
+  @ApiForbiddenResponse({ description: 'Only owner can kick members' })
+  @ApiNotFoundResponse({ description: 'Team or member not found' })
+  async kick(
+    @USER('id') kickedBy: number,
+    @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('kickedId', ParseIntPipe) kickedId: number,
+  ) {
+    return this.teamMemberService.kick(kickedBy, kickedId, teamId);
+  }
+
+  @Delete('member/:teamId/leave')
+  @ApiOperation({ summary: 'Leave a team' })
+  @ApiOkResponse({ description: 'Successfully left the team' })
+  @ApiBadRequestResponse({
+    description:
+      'Hackathon terminated or owner cannot leave without transferring ownership',
+  })
+  @ApiNotFoundResponse({ description: 'Team or member not found' })
+  async leave(
+    @USER('id') userId: number,
+    @Param('teamId', ParseIntPipe) teamId: number,
+  ) {
+    return this.teamMemberService.leave(userId, teamId);
   }
 }

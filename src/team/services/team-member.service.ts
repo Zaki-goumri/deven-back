@@ -4,18 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { TeamMember } from '../entities/team-member.entity';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { Team } from '../entities/team.entity';
 
 @Injectable()
 export class TeamMemberService {
-  constructor(
-    @InjectRepository(TeamMember)
-    private readonly teamMemberRepo: Repository<TeamMember>,
-    private readonly dataSource: DataSource,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async join(userId: number, insertCode: string) {
     return this.dataSource.transaction(async (manager) => {
@@ -44,10 +39,55 @@ export class TeamMemberService {
       // no need to concentrate on return type now until fix the ui
       return {
         success: true,
-        message: isAlreadyMember
-          ? 'User already in the team'
-          : 'User joined the team',
+        message: 'User joined the team',
         memberCount: teamData.members.length,
+      };
+    });
+  }
+
+  async kick(kickedBy: number, kickedId: number, teamId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      const team = await this.getTeamWithHackathon(manager, teamId);
+
+      this.ensureOwner(team, kickedBy);
+      this.ensureHackathonNotStarted(team);
+      this.ensureNotSelfKick(kickedBy, kickedId);
+
+      await this.removeMember(manager, teamId, kickedId);
+
+      return { message: 'Member kicked successfully' };
+    });
+  }
+
+  async leave(userId: number, teamId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      const team = await this.getTeamWithHackathon(manager, teamId);
+
+      this.ensureHackathonNotTerminated(team);
+      await this.ensureUserIsMember(manager, teamId, userId);
+
+      // If the leaving user is the owner, transfer ownership first
+      if (team.ownerId === userId) {
+        const oldestMember = await this.getOldestMemberExcludingOwner(
+          manager,
+          teamId,
+          userId,
+        );
+
+        if (!oldestMember) {
+          throw new BadRequestException(
+            'Cannot leave team as the only member. Consider deleting the team instead.',
+          );
+        }
+
+        await this.updateTeamOwnership(manager, teamId, oldestMember.userId);
+      }
+
+      await this.removeMember(manager, teamId, userId);
+
+      return {
+        success: true,
+        message: 'Successfully left the team',
       };
     });
   }
@@ -141,24 +181,6 @@ export class TeamMemberService {
     return inserted;
   }
 
-  async kick(kickedBy: number, kickedId: number, teamId: number) {
-    return this.dataSource.transaction(async (manager) => {
-      const team = await this.getTeamWithHackathon(manager, teamId);
-
-      this.ensureOwner(team, kickedBy);
-      this.ensureHackathonNotStarted(team);
-      this.ensureNotSelfKick(kickedBy, kickedId);
-
-      await this.removeMember(manager, teamId, kickedId);
-
-      return { message: 'Member kicked successfully' };
-    });
-  }
-
-  //
-  // ─── HELPERS ──────────────────────────────────────────────
-  //
-
   private async getTeamWithHackathon(
     manager: EntityManager,
     teamId: number,
@@ -214,6 +236,64 @@ export class TeamMemberService {
     }
   }
 
-  leave() {}
-  changeOwenShip() {}
+  private ensureHackathonNotTerminated(team: Team) {
+    if (team.hackathon.endDate <= new Date()) {
+      throw new BadRequestException(
+        'Cannot perform this action after hackathon has terminated',
+      );
+    }
+  }
+
+  private async ensureUserIsMember(
+    manager: EntityManager,
+    teamId: number,
+    userId: number,
+  ): Promise<void> {
+    const member: { id: number } | undefined = await manager
+      .createQueryBuilder()
+      .select('tm.id')
+      .from('team_member', 'tm')
+      .where('tm.teamId = :teamId', { teamId })
+      .andWhere('tm.userId = :userId', { userId })
+      .getRawOne();
+
+    if (!member) {
+      throw new NotFoundException('User is not a member of this team');
+    }
+  }
+
+  private async updateTeamOwnership(
+    manager: EntityManager,
+    teamId: number,
+    newOwnerId: number,
+  ): Promise<void> {
+    const result = await manager
+      .createQueryBuilder()
+      .update('team')
+      .set({ ownerId: newOwnerId })
+      .where('id = :teamId', { teamId })
+      .execute();
+
+    if (result.affected === 0) {
+      throw new NotFoundException('Team not found');
+    }
+  }
+
+  private async getOldestMemberExcludingOwner(
+    manager: EntityManager,
+    teamId: number,
+    excludeUserId: number,
+  ): Promise<{ userId: number; createdAt: Date } | null> {
+    const result = await manager
+      .createQueryBuilder()
+      .select(['tm.userId AS userId', 'tm.createdAt AS createdAt'])
+      .from('team_member', 'tm')
+      .where('tm.teamId = :teamId', { teamId })
+      .andWhere('tm.userId != :excludeUserId', { excludeUserId })
+      .orderBy('tm.createdAt', 'ASC')
+      .limit(1)
+      .getRawOne<{ userId: number; createdAt: Date }>();
+
+    return result || null;
+  }
 }
