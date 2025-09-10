@@ -4,17 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { TeamMember } from '../entities/team-member.entity';
 import { DataSource, EntityManager } from 'typeorm';
 import { Team } from '../entities/team.entity';
 
 @Injectable()
 export class TeamMemberService {
-  constructor(
-    @InjectRepository(TeamMember)
-    private readonly dataSource: DataSource,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async join(userId: number, insertCode: string) {
     return this.dataSource.transaction(async (manager) => {
@@ -253,7 +249,7 @@ export class TeamMemberService {
     teamId: number,
     userId: number,
   ): Promise<void> {
-    const member: TeamMember | undefined = await manager
+    const member: { id: number } | undefined = await manager
       .createQueryBuilder()
       .select('tm.id')
       .from('team_member', 'tm')
