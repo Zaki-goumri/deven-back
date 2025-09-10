@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WhatsappController } from './whatsapp.controller';
 import { WhatsappService } from './whatsapp.service';
+import { createMock } from '@golevelup/ts-jest';
 
 describe('WhatsappController', () => {
   let controller: WhatsappController;
@@ -8,7 +9,12 @@ describe('WhatsappController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WhatsappController],
-      providers: [WhatsappService],
+      providers: [
+        {
+          provide: WhatsappService,
+          useValue: createMock(),
+        },
+      ],
     }).compile();
 
     controller = module.get<WhatsappController>(WhatsappController);

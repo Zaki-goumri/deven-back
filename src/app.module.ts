@@ -23,14 +23,22 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import redisConfig from './config/redis.config';
-import { FiltersModule } from './global/exception-filters/filter.module';
+import cloudConfig from './config/cloud.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, mailConfig, authConfig, redisConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        mailConfig,
+        authConfig,
+        redisConfig,
+        cloudConfig,
+      ],
       envFilePath: `.env`,
+      expandVariables: true,
     }),
     TypeOrmModule.forRootAsync(databaseConfig.asProvider()),
     UserModule,
@@ -48,7 +56,7 @@ import { FiltersModule } from './global/exception-filters/filter.module';
     WhatsappModule,
     AchivenemntsModule,
     CloudinaryModule,
-    FiltersModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

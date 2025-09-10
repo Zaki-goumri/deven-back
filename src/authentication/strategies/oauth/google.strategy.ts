@@ -1,10 +1,11 @@
 import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-google-oauth20';
+import { Request } from 'express';
+import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import authConfig from 'src/config/auth.config';
-export class GoogleStrategy extends PassportStrategy(Strategy) {
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     @Inject(authConfig.KEY)
     private readonly authConfiguration: ConfigType<typeof authConfig>,
@@ -12,7 +13,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   ) {
     super(authConfiguration.oauth.google);
   }
-  validate(...args: any[]): unknown {
-    throw new Error('Method not implemented.');
+  async validate(
+    req: Request,
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile,
+    done: VerifyCallback,
+  ) {
+    const user = await this.authService.logOauthUser(profile);
+    done(null, user);
   }
 }

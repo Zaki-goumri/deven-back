@@ -1,9 +1,13 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { User } from "src/user/entities/user.entity";
-import { ExtendedRequest } from "../types/extended-req.type";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { User } from 'src/user/entities/user.entity';
+import { ExtendedRequest } from '../types/extended-req.type';
+import { AccessTokenPayload } from '../interfaces/access-token-payload.interface';
 
 export const USER = createParamDecorator(
-  (data: keyof User | undefined, ctx: ExecutionContext) => {
+  (
+    data: keyof AccessTokenPayload['user'] | undefined,
+    ctx: ExecutionContext,
+  ) => {
     const request = ctx.switchToHttp().getRequest<ExtendedRequest>();
     const user = request.user;
     if (!user) {
@@ -17,4 +21,4 @@ export const USER = createParamDecorator(
     // Otherwise, return the entire user object
     return user;
   },
-)
+);

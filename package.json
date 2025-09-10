@@ -1,10 +1,10 @@
 {
-  "name": "nest-starter",
+  "name": "deven",
+  "license": "UNLICENSED",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A hackathon management platform",
+  "author": "Mouloud Hasrane/ Zakaria Goumri",
   "private": true,
-  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+
+    "seed:links":"node -r ts-node/register -r tsconfig-paths/register src/common/seeders/links/index.ts",
+    "seed:users":"node -r ts-node/register -r tsconfig-paths/register src/common/seeders/user/index.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -47,10 +50,12 @@
     "cloudinary": "^2.7.0",
     "crypto": "^1.0.1",
     "csrf-csrf": "^4.0.3",
+    "express": "^5.1.0",
     "express-session": "^1.18.1",
     "helmet": "^8.1.0",
     "ioredis": "^5.6.1",
     "lodash": "^4.17.21",
+    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
@@ -65,6 +70,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@golevelup/ts-jest": "^0.7.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -74,6 +80,7 @@
     "@types/express-session": "^1.18.2",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.17",
+    "@types/multer": "^2.0.0",
     "@types/node": "^22.10.7",
     "@types/passport": "^1.0.17",
     "@types/passport-github2": "^1.2.9",
@@ -102,7 +109,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -110,7 +117,10 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1"
+    }
   }
 }

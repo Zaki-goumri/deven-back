@@ -26,12 +26,12 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 import { Team } from './entities/team.entity';
-import { AcessTokenGuard } from 'src/authentication/guards/access-token.guard';
+import { AccessTokenGuard } from 'src/authentication/guards/access-token.guard';
 import { USER } from 'src/authentication/decorators/user.decorartor';
 import { SWAGGER_DESC } from 'src/common/constants/swagger-docs';
 
 @ApiTags('Teams')
-@UseGuards(AcessTokenGuard)
+@UseGuards(AccessTokenGuard)
 // common responses
 @ApiTooManyRequestsResponse({
   description: SWAGGER_DESC.TOO_MANY_REQUESTS,

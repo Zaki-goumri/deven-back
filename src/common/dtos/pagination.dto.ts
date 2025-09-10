@@ -16,7 +16,7 @@ export class PaginationQueryDto {
   @Min(1)
   @Max(100)
   @IsOptional()
-  take?: number = 10;
+  take: number = 10;
 }
 
 export class PaginationDtoBase {
