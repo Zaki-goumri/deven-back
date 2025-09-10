@@ -33,10 +33,12 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
     exception: QueryFailedError | EntityNotFoundError,
     host: ArgumentsHost,
   ): void {
+    /*
+ * commented in dev for now
     if (host.getType() !== 'http') {
       return;
     }
-
+*/
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -48,14 +50,8 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
     const errorResponse = {
       statusCode: errorResult.status,
       timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
       error: errorResult.error,
       message: errorResult.message,
-      ...(this.shouldIncludeStack() &&
-        exception instanceof Error && {
-          stack: exception.stack,
-        }),
     };
 
     response.status(errorResult.status).json(errorResponse);
