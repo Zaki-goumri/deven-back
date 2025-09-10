@@ -7,15 +7,15 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UploadApiResponse } from 'cloudinary';
 import { QUEUE_NAME } from 'src/common/constants/queues';
-import { Attachment } from 'src/common/entities/attachement.entity';
+import { Attachement } from 'src/common/entities/attachement.entity';
 import { Repository } from 'typeorm';
 
 @QueueEventsListener(QUEUE_NAME.ATTACHMENTS)
 export class AttachmentEventListener extends QueueEventsHost {
   logger = new Logger(AttachmentEventListener.name);
   constructor(
-    @InjectRepository(Attachment)
-    private readonly attachmentRepo: Repository<Attachment>,
+    @InjectRepository(Attachement)
+    private readonly attachmentRepo: Repository<Attachement>,
   ) {
     super();
   }

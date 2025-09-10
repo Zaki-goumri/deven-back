@@ -1,27 +1,15 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-export const ATTACHMENT_TYPE = {
-  IMAGE: 'image',
-  VIDEO: 'video',
-  AUDIO: 'audio',
-  DOCUMENT: 'document',
-} as const;
-
-export type AttachmentType =
-  (typeof ATTACHMENT_TYPE)[keyof typeof ATTACHMENT_TYPE];
-
-export const ATTACHMENT_UPLOAD_STATUS = {
-  PENDING: 'pending',
-  UPLOADING: 'uploading',
-  COMPLETED: 'completed',
-  FAILED: 'failed',
-} as const;
-
-export type AttachmentUploadStatus =
-  (typeof ATTACHMENT_UPLOAD_STATUS)[keyof typeof ATTACHMENT_UPLOAD_STATUS];
+import {
+  ATTACHMENT_TYPE,
+  AttachmentType,
+} from '../types/attachement/attachament-type.type';
+import {
+  ATTACHMENT_UPLOAD_STATUS,
+  AttachmentUploadStatus,
+} from '../types/attachement/attachemt-status.type';
 
 @Entity({ name: 'attachments' })
-export class Attachment {
+export class Attachement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   // Job id from BullMQ

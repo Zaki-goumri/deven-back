@@ -5,15 +5,7 @@ import { Readable } from 'stream';
 
 import 'multer';
 import cloudConfig from 'src/config/cloud.config';
-export interface UploadingOptions {
-  uploadType:
-    | 'USER'
-    | 'ORGANIZATION'
-    | 'HACKATHON'
-    | 'PROVIDER'
-    | 'SUBMISSION'
-    | 'OTHER';
-}
+import { UploadingOptions } from './types/upload-options.interface';
 
 @Injectable()
 export class CloudinaryService {
