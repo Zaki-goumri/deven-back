@@ -1,17 +1,23 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigModule,  ConfigType } from '@nestjs/config';
 import { QUEUE_NAME } from 'src/common/constants/queues';
 import { MailProcessor } from './mail/mail.processor';
 import { EmailModule } from 'src/email/email.module';
-import { AppConfig } from 'src/config/interfaces/app-config.interface';
 import redisConfig from 'src/config/redis.config';
+import { AttachmentsProcessor } from './attachements/attachements.process';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Attachment } from 'src/common/entities/attachement.entity';
+import { AttachmentEventListener } from './attachements/attachement.event-listener';
 
 @Global()
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Attachment]),
     ConfigModule.forFeature(redisConfig),
     EmailModule,
+    CloudinaryModule,
     BullModule.forRootAsync({
       useFactory: (configService: ConfigType<typeof redisConfig>) => {
         const redisHost = configService.host;
@@ -37,6 +43,6 @@ import redisConfig from 'src/config/redis.config';
   ],
 
   exports: [BullModule],
-  providers: [MailProcessor],
+  providers: [MailProcessor, AttachmentsProcessor, AttachmentEventListener],
 })
 export class QueueModule {}

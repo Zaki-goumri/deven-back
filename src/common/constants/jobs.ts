@@ -18,3 +18,7 @@ export const MAIL_JOBS = {
   SEND_WELCOME_MAIL: 'send_welcome_mail',
   SEND_NOTIFICATION_MAIL: 'send_notification_mail',
 } as const;
+export const ATTACHMENTS_JOBs = {
+  UPLOAD_FILE: 'upload_file',
+  DELETE_FILE: 'delete_file',
+} as const;
