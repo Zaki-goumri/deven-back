@@ -7,8 +7,6 @@ import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
-import { DatabaseConfig } from './config/interfaces/database-config.interface';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { TeamModule } from './team/team.module';
 import { HackathonModule } from './hackathon/hackathon.module';
@@ -20,16 +18,11 @@ import { EmailModule } from './email/email.module';
 import mailConfig from './config/mail.config';
 import { QueueModule } from './queue/queue.module';
 import { RedisModule } from './redis/redis.module';
-import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { AchivenemntsModule } from './achivenemnts/achivenemnts.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import redisConfig from './config/redis.config';
-import { DatabaseExceptionFilter } from './global/exception-filters/db.filter';
-import { APP_FILTER } from '@nestjs/core';
-import { GlobalExceptionFilter } from './global/exception-filters/logger.filter';
-import { RedisExceptionFilter } from './global/exception-filters/redis.filter';
 import { FiltersModule } from './global/exception-filters/filter.module';
 
 @Module({

@@ -64,7 +64,7 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
   private handleException(
     exception: QueryFailedError | EntityNotFoundError,
   ): DatabaseErrorResult {
-    if (exception instanceof EntityNotFoundError) {
+    if (this.isEntityNotFoundError(exception)) {
       return {
         status: HttpStatus.NOT_FOUND,
         message: 'Resource not found',
@@ -72,7 +72,7 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
       };
     }
 
-    if (exception instanceof QueryFailedError) {
+    if (this.isQuertFailedError(exception)) {
       return this.handleQueryFailedError(exception);
     }
 
@@ -81,6 +81,18 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
       message: 'Database error occurred',
       error: 'Internal Server Error',
     };
+  }
+
+  private isEntityNotFoundError(
+    exception: unknown,
+  ): exception is EntityNotFoundError {
+    return exception instanceof EntityNotFoundError;
+  }
+
+  private isQuertFailedError(
+    exception: unknown,
+  ): exception is QueryFailedError {
+    return exception instanceof QueryFailedError;
   }
 
   private handleQueryFailedError(error: QueryFailedError): DatabaseErrorResult {
