@@ -8,13 +8,13 @@ import redisConfig from 'src/config/redis.config';
 import { AttachmentsProcessor } from './attachements/attachements.process';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Attachment } from 'src/common/entities/attachement.entity';
+import { Attachement } from 'src/common/entities/attachement.entity';
 import { AttachmentEventListener } from './attachements/attachement.event-listener';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Attachment]),
+    TypeOrmModule.forFeature([Attachement]),
     ConfigModule.forFeature(redisConfig),
     EmailModule,
     CloudinaryModule,
