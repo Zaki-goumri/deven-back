@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Organization } from 'src/organization/entities/organization.entity';
-import { LinkProvider } from 'src/common/entities/link-provider.entity';
+import { Organization } from './organization.entity';
+import { LinkProvider } from '../../common/entities/link-provider.entity';
 
 // ReadMe important note :
 // On the first approach the engineer(me) was going to use a polymorphic relation to handle links in all entities , however this was proven to be a bad idea .
