@@ -21,7 +21,6 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,target=/root/.npm \
   npm install -g pnpm@${PNPM_VERSION}
 
-RUN npm install -g @nestjs/cli 
 ################################################################################
 # Create a stage for installing production dependecies.
 FROM base AS deps
@@ -33,7 +32,7 @@ FROM base AS deps
 RUN --mount=type=bind,source=package.json,target=package.json \
   --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=cache,target=/root/.local/share/pnpm/store \
-  pnpm install --prod --frozen-lockfile
+  pnpm install --frozen-lockfile
 
 ################################################################################
 # Create a stage for building the application.
@@ -67,6 +66,7 @@ RUN mkdir -p /usr/src/app/dist
 
 # Copy package.json so that package manager commands can be used.
 
+RUN npm install -g @nestjs/cli 
 
 # Expose the port that the application listens on.
 EXPOSE 3000

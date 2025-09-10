@@ -12,6 +12,9 @@ import { AppModule } from './app.module';
 import { LoggerInterceptor } from './global/interceptors/logger.interceptor';
 import { ExtendedRequest } from './authentication/types/extended-req.type';
 import { SuccessResponseInterceptor } from './global/interceptors/success-response.interceptor';
+import { DatabaseExceptionFilter } from './global/exception-filters/db.filter';
+import { RedisExceptionFilter } from './global/exception-filters/redis.filter';
+import { GlobalExceptionFilter } from './global/exception-filters/logger.filter';
 async function bootstrap() {
   // the cors will be changed to the front end url  in production environnement
   const app = await NestFactory.create(AppModule, {
@@ -66,6 +69,13 @@ async function bootstrap() {
     new LoggerInterceptor(),
     new SuccessResponseInterceptor(),
   );
+  app.useGlobalInterceptors(new LoggerInterceptor());
+
+  //filter for handle db exceptions
+  app.useGlobalFilters(new DatabaseExceptionFilter());
+  app.useGlobalFilters(new RedisExceptionFilter());
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
       strategy: 'exposeAll',
