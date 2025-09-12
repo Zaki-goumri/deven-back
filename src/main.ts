@@ -11,6 +11,7 @@ import { doubleCsrf, DoubleCsrfConfigOptions } from 'csrf-csrf';
 import { AppModule } from './app.module';
 import { LoggerInterceptor } from './global/interceptors/logger.interceptor';
 import { ExtendedRequest } from './authentication/types/extended-req.type';
+import { SuccessResponseInterceptor } from './global/interceptors/success-response.interceptor';
 import { DatabaseExceptionFilter } from './global/exception-filters/db.filter';
 import { RedisExceptionFilter } from './global/exception-filters/redis.filter';
 import { GlobalExceptionFilter } from './global/exception-filters/logger.filter';
@@ -64,6 +65,10 @@ async function bootstrap() {
   const { doubleCsrfProtection } = doubleCsrf(opts);
   //  app.use(doubleCsrfProtection);
   //
+  app.useGlobalInterceptors(
+    new LoggerInterceptor(),
+    new SuccessResponseInterceptor(),
+  );
   app.useGlobalInterceptors(new LoggerInterceptor());
 
   //filter for handle db exceptions

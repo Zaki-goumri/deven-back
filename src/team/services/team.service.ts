@@ -9,7 +9,7 @@ import { randomBytes } from 'crypto';
 import { CreateTeamDto } from '../dto/create-team.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from '../entities/team.entity';
-import { MoreThan, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
 import {
   PaginationDtoRes,
@@ -96,12 +96,11 @@ export class TeamService {
     { take = 10, lastId = 0 }: PaginationQueryDto,
     hackathonId: number,
   ) {
-    const [teams] = await this.teamRepo.findAndCount({
+    const teams = await this.teamRepo.find({
       where: {
-        id: MoreThan(lastId),
+        id: Between(lastId, lastId + take),
         hackathonId,
       },
-      take: take + 1,
       order: { id: 'ASC' },
     });
     const hasMore = teams.length === take;
