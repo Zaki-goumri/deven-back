@@ -15,6 +15,7 @@ export class IndividualParticipantService {
     private readonly individualParticipantRepo: Repository<IndividualParticipant>,
   ) {}
   async createParticipant(userId: number, hackathonId: number) {
+    //TODO: add hackathon Registration and starting validation after add hackathon service
     const participant = this.individualParticipantRepo.create({
       hackathonId,
       userId,
@@ -32,7 +33,7 @@ export class IndividualParticipantService {
         hackathonId,
       },
       //priotity to the old one
-      order: { createdAt: 'ASC' },
+      order: { id: 'ASC' },
       relations: ['user'],
       select: {
         user: { ...IndividualParticipantService.getDisplayUserSelect() },
@@ -43,6 +44,7 @@ export class IndividualParticipantService {
       participants.length > 0
         ? participants[participants.length - 1].id
         : lastId;
+    //TODO: need to move has more logic to PaginationDtoRes constructor
     return new PaginationDtoRes(participants, take, newLastId, hasMore);
   }
   async removeParticipant(participantId: number) {
@@ -53,7 +55,6 @@ export class IndividualParticipantService {
         `the participant with id ${participantId} is not found`,
       );
     return {
-      success: true,
       message: `participant with id ${participantId} is removed successfully`,
     };
   }
